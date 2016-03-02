@@ -166,7 +166,7 @@ public class PhantomJS {
             cmd.append(options.toString());
         }
 
-        cmd.append(script);
+        cmd.append(" ").append(script);
 
         if (arguments != null && arguments.length > 0) {
             for (String arg : arguments) {
