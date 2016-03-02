@@ -154,6 +154,10 @@ public class PhantomJS {
             throw new IllegalStateException("PhantomJS binary not executable");
         }
 
+        if (script == null || script.trim().isEmpty()) {
+            throw new IllegalArgumentException("Script is a required argument");
+        }
+
         String pjsPath = PHANTOM_JS_BINARY.toPath().toAbsolutePath().toString();
 
         StringBuilder cmd = new StringBuilder(pjsPath);
