@@ -63,7 +63,7 @@ public class PhantomJS {
      *
      * @return the name of the bin in the unzipped file
      */
-    public static String getPhantomJSBinName() {
+    private static String getPhantomJSBinName() {
         OperatingSystem.OS os = OperatingSystem.get();
         if (os == null) {
             return null;
@@ -133,12 +133,19 @@ public class PhantomJS {
         }
     }
 
+    public static void exec(String script, String... arguments) throws IOException {
+        exec(script, null, arguments);
+    }
+
     /**
-     * Execute phantomJS with some argument
+     * Execute a script with options and a list of arguments
      *
-     * @param argument the argument string to give to phantomjs
+     * @param script    to execute
+     * @param options   options to execute
+     * @param arguments list of arguments
+     * @throws IOException if cmd execution fails
      */
-    public static void exec(String argument) throws IOException {
+    public static void exec(String script, PhantomJSOptions options, String... arguments) throws IOException {
         if (PHANTOM_JS_BINARY == null || !PHANTOM_JS_BINARY.exists()) {
             throw new IllegalStateException("PhantomJS binary not found or failed to initialize");
         }
@@ -149,9 +156,22 @@ public class PhantomJS {
 
         String pjsPath = PHANTOM_JS_BINARY.toPath().toAbsolutePath().toString();
 
-        String cmd = pjsPath + " " + argument;
+        StringBuilder cmd = new StringBuilder(pjsPath);
+
+        if (options != null) {
+            cmd.append(options.toString());
+        }
+
+        cmd.append(script);
+
+        if (arguments != null && arguments.length > 0) {
+            for (String arg : arguments) {
+                cmd.append(" ").append(arg);
+            }
+        }
+
         LOG.log(Level.INFO, String.format("Running command: %s", cmd));
 
-        Runtime.getRuntime().exec(cmd);
+        Runtime.getRuntime().exec(cmd.toString());
     }
 }
