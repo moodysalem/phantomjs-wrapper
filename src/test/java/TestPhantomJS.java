@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public class TestPhantomJS {
     @Test
-    public void testRunScript() throws IOException {
-        PhantomJS.exec(TestPhantomJS.class.getResourceAsStream("test-script.js"));
+    public void testRunScript() throws IOException, InterruptedException {
+        PhantomJS.exec(TestPhantomJS.class.getResourceAsStream("test-script.js"), "test-google.pdf");
     }
 }

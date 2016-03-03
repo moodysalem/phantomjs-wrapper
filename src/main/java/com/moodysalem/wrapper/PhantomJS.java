@@ -1,17 +1,18 @@
 package com.moodysalem.wrapper;
 
 import com.moodysalem.util.OperatingSystem;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.exec.CommandLine;
+import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.PumpStreamHandler;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -163,13 +164,16 @@ public class PhantomJS {
         }
     }
 
-    public static void exec(InputStream script, String... arguments) throws IOException {
-        exec(script, null, arguments);
-    }
-
-
+    // used for bytesToHex
     private final static char[] hexArray = "0123456789ABCDEF".toCharArray();
 
+
+    /**
+     * Converts a byte array to its hexadecimal representation
+     *
+     * @param bytes to convert
+     * @return hex rep
+     */
     private static String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
         for (int j = 0; j < bytes.length; j++) {
@@ -178,6 +182,11 @@ public class PhantomJS {
             hexChars[j * 2 + 1] = hexArray[v & 0x0F];
         }
         return new String(hexChars);
+    }
+
+
+    public static void exec(InputStream script, String... arguments) throws IOException {
+        exec(script, null, arguments);
     }
 
     /**
@@ -202,7 +211,7 @@ public class PhantomJS {
         }
 
         // load the script into memory
-        byte[] is = IOUtils.toByteArray(script);
+        byte[] is = toByteArray(script);
         // calculate a hash of the script to use as a filename
         String fname = bytesToHex(md.digest(is)).substring(0, 10);
         Path scriptPath = TEMP_SCRIPT_DIR.resolve(fname);
@@ -215,25 +224,45 @@ public class PhantomJS {
             fos.write(is);
         }
 
-        // start with the phantomjs path
-        String pjsPath = PHANTOM_JS_BINARY.toPath().toAbsolutePath().toString();
-        StringBuilder cmd = new StringBuilder(pjsPath);
+        CommandLine cmd = new CommandLine(PHANTOM_JS_BINARY);
+        Map<String, Object> args = new HashMap<>();
+        cmd.setSubstitutionMap(args);
+
+        args.put("script", scriptPath.toFile());
+        cmd.addArgument("${script}");
 
         if (options != null) {
-            cmd.append(options.toString());
+            options.apply(cmd, args);
         }
-
-        cmd.append(" ").append(scriptPath.toAbsolutePath().toString());
 
         if (arguments != null && arguments.length > 0) {
             for (String arg : arguments) {
-                cmd.append(" ").append(arg);
+                cmd.addArgument(arg);
             }
         }
 
-        LOG.log(Level.INFO, String.format("Running command: %s", cmd));
+        LOG.log(Level.INFO, String.format("Running command: %s", cmd.getExecutable()));
+        DefaultExecutor de = new DefaultExecutor();
+        de.setStreamHandler(new PumpStreamHandler(System.out));
+        de.execute(cmd);
+    }
 
-        Runtime.getRuntime().exec(cmd.toString());
+    /**
+     * Read an input stream into a byte array
+     *
+     * @param is to read
+     * @return byte array of inputstream
+     * @throws IOException
+     */
+    private static byte[] toByteArray(InputStream is) throws IOException {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[1024];
+            int read;
+            while ((read = is.read(buffer)) > 0) {
+                baos.write(buffer, 0, read);
+            }
+            return baos.toByteArray();
+        }
     }
 
 

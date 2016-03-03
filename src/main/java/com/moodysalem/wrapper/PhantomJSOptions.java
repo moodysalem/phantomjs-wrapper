@@ -1,10 +1,22 @@
 package com.moodysalem.wrapper;
 
+import org.apache.commons.exec.CommandLine;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class PhantomJSOptions {
+    public File getLocalStoragePath() {
+        return localStoragePath;
+    }
+
+    public void setLocalStoragePath(File localStoragePath) {
+        this.localStoragePath = localStoragePath;
+    }
+
     public enum YesNo {
         yes, no
     }
@@ -15,11 +27,11 @@ public class PhantomJSOptions {
 
     private boolean help;
     private boolean version;
-    private String cookiesFile;
+    private File cookiesFile;
     private Boolean diskCache;
     private Boolean ignoreSslErrors;
     private Boolean loadImages;
-    private String localStoragePath;
+    private File localStoragePath;
     private Long localStorageQuota;
     private Boolean localToRemoteUrlAccess;
     private Long maxDiskCacheSize;
@@ -57,11 +69,11 @@ public class PhantomJSOptions {
         this.version = version;
     }
 
-    public String getCookiesFile() {
+    public File getCookiesFile() {
         return cookiesFile;
     }
 
-    public void setCookiesFile(String cookiesFile) {
+    public void setCookiesFile(File cookiesFile) {
         this.cookiesFile = cookiesFile;
     }
 
@@ -87,14 +99,6 @@ public class PhantomJSOptions {
 
     public void setLoadImages(Boolean loadImages) {
         this.loadImages = loadImages;
-    }
-
-    public String getLocalStoragePath() {
-        return localStoragePath;
-    }
-
-    public void setLocalStoragePath(String localStoragePath) {
-        this.localStoragePath = localStoragePath;
     }
 
     public Long getLocalStorageQuota() {
@@ -217,6 +221,86 @@ public class PhantomJSOptions {
         this.webdriverSeleniumGridHub = webdriverSeleniumGridHub;
     }
 
+    public void apply(CommandLine cmd, Map<String, Object> args) {
+        if (isHelp()) {
+            cmd.addArgument("--help");
+        }
+        if (isVersion()) {
+            cmd.addArgument("--version");
+        }
+
+        if (getCookiesFile() != null) {
+            cmd.addArgument("--cookies-file=${cookies-file}");
+            args.put("cookies-file", getCookiesFile());
+        }
+
+        if (getDiskCache()) {
+            cmd.addArgument("--disk-cache=${disk-cache}" + getDiskCache());
+        }
+
+        if (getIgnoreSslErrors()) {
+            cmd.addArgument("--ignore-ssl-errors=" + getIgnoreSslErrors());
+        }
+
+        if (getLoadImages()) {
+            cmd.addArgument("--load-images=" + getLoadImages());
+        }
+
+        if (getLocalStoragePath() != null) {
+            cmd.addArgument("--local-storage-path=${local-storage-path}");
+            args.put("local-storage-path", getLocalStoragePath());
+        }
+
+        if (getLocalToRemoteUrlAccess() != null) {
+            cmd.addArgument("--local-to-remote-url-access=" + getLocalToRemoteUrlAccess());
+        }
+        if (getMaxDiskCacheSize() != null) {
+            cmd.addArgument("--max-disk-cache-size=" + getMaxDiskCacheSize());
+        }
+        if (getOutputEncoding() != null) {
+            cmd.addArgument("--output-encoding=" + getOutputEncoding());
+        }
+        if (getRemoteDebuggerPort() != null) {
+            cmd.addArgument("--remote-debugger-port=" + getRemoteDebuggerPort());
+        }
+        if (getRemoteDebuggerAutorun() != null) {
+            cmd.addArgument("--remote-debugger-autorun=" + getRemoteDebuggerAutorun().name());
+        }
+
+        if (getProxy() != null) {
+            cmd.addArgument("--proxy=" + getProxy());
+        }
+        if (getProxyType() != null) {
+            cmd.addArgument("--proxy-type=" + getProxyType());
+        }
+
+        if (getProxyAuth() != null) {
+            cmd.addArgument("--proxy-auth=" + getProxyAuth());
+        }
+
+        if (getScriptEncoding() != null) {
+            cmd.addArgument("--script-encoding=" + getScriptEncoding());
+        }
+        if (getSslProtocol() != null) {
+            cmd.addArgument("--ssl-protocol=" + getSslProtocol().name());
+        }
+
+        if (getSslCertificatesPath() != null) {
+            cmd.addArgument("--ssl-certificates-path=" + getSslCertificatesPath());
+        }
+        if (getWebSecurity() != null) {
+            cmd.addArgument("--web-security=" + getWebSecurity());
+        }
+
+        if (getWebdriver() != null) {
+            cmd.addArgument("--webdriver");
+            if (getWebdriverSeleniumGridHub() != null) {
+                cmd.addArgument("--webdriver-selenium-grid-hub=" + getWebdriverSeleniumGridHub());
+            }
+        }
+
+    }
+
     @Override
     public String toString() {
         List<String> args = new ArrayList<>();
@@ -298,4 +382,5 @@ public class PhantomJSOptions {
 
         return args.size() > 0 ? args.stream().collect(Collectors.joining(" ")) : "";
     }
+
 }
