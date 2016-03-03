@@ -2,7 +2,7 @@ package com.moodysalem.phantomjs.wrapper;
 
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
-import org.apache.commons.exec.ExecuteWatchdog;
+import org.apache.commons.exec.LogOutputStream;
 import org.apache.commons.exec.PumpStreamHandler;
 
 import java.io.*;
@@ -275,6 +275,22 @@ public class PhantomJS {
         exec(script, null, arguments);
     }
 
+    private static class LoggerOutputStream extends LogOutputStream {
+        private Logger logger;
+        private Level level;
+
+        public LoggerOutputStream(Logger logger, Level level) {
+            super();
+            this.logger = logger;
+            this.level = level;
+        }
+
+        @Override
+        protected void processLine(String s, int i) {
+            logger.log(level, s);
+        }
+    }
+
     /**
      * Execute a script with options and a list of arguments
      *
@@ -329,7 +345,7 @@ public class PhantomJS {
 
         LOG.log(Level.INFO, String.format("Running command: %s", cmd.toString()));
         DefaultExecutor de = new DefaultExecutor();
-        de.setStreamHandler(new PumpStreamHandler(System.out));
+        de.setStreamHandler(new PumpStreamHandler(new LoggerOutputStream(LOG, Level.INFO), new LoggerOutputStream(LOG, Level.SEVERE)));
         de.execute(cmd);
     }
 
