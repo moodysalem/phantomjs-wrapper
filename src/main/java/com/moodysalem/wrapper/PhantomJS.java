@@ -1,13 +1,17 @@
 package com.moodysalem.wrapper;
 
 import com.moodysalem.util.OperatingSystem;
+import org.apache.commons.io.IOUtils;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -15,17 +19,36 @@ import java.util.zip.ZipInputStream;
 
 public class PhantomJS {
     private static final Logger LOG = Logger.getLogger(PhantomJS.class.getName());
-    private static final Path TEMP_DIR = Paths.get(System.getProperty("java.io.tmpdir", "~"));
+    private static final Path TEMP_DIR = Paths.get(System.getProperty("java.io.tmpdir", "~")).resolve("java-phantomjs")
+            .resolve(Long.toString(System.currentTimeMillis()));
+    private static final Path TEMP_SCRIPT_DIR = TEMP_DIR.resolve("scripts");
+    private static final MessageDigest md;
 
     // this will store a reference to the executable phantomjs binary after we unzip the resource
     private static File PHANTOM_JS_BINARY = null;
 
     // get a reference to the executable binary and store it in PHANTOM_JS_BINARY
     static {
+        md = getMessageDigest();
+
         String resourcePath = getZipPath();
 
         if (resourcePath != null) {
             unzipPhantomJSbin(TEMP_DIR, resourcePath);
+        }
+    }
+
+    /**
+     * Get the sha256 message digest
+     *
+     * @return sha256 message digest if it is supported
+     */
+    private static MessageDigest getMessageDigest() {
+        try {
+            return MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            LOG.log(Level.SEVERE, "SHA-256 algorithm not supported", e);
+            return null;
         }
     }
 
@@ -113,6 +136,13 @@ public class PhantomJS {
                     LOG.log(Level.SEVERE, "Failed to delete file if exists at path: " + filePath, e);
                 }
 
+                // create the parent directory
+                try {
+                    Files.createDirectories(filePath.getParent());
+                } catch (IOException e) {
+                    LOG.log(Level.SEVERE, "Failed to create file path to file: " + filePath, e);
+                }
+
                 // copy input stream into file
                 try {
                     Files.copy(zipStream, filePath);
@@ -133,19 +163,32 @@ public class PhantomJS {
         }
     }
 
-    public static void exec(String script, String... arguments) throws IOException {
+    public static void exec(InputStream script, String... arguments) throws IOException {
         exec(script, null, arguments);
+    }
+
+
+    private final static char[] hexArray = "0123456789ABCDEF".toCharArray();
+
+    private static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for (int j = 0; j < bytes.length; j++) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+        return new String(hexChars);
     }
 
     /**
      * Execute a script with options and a list of arguments
      *
-     * @param script    to execute
+     * @param script    path of script to execute
      * @param options   options to execute
      * @param arguments list of arguments
      * @throws IOException if cmd execution fails
      */
-    public static void exec(String script, PhantomJSOptions options, String... arguments) throws IOException {
+    public static void exec(InputStream script, PhantomJSOptions options, String... arguments) throws IOException {
         if (PHANTOM_JS_BINARY == null || !PHANTOM_JS_BINARY.exists()) {
             throw new IllegalStateException("PhantomJS binary not found or failed to initialize");
         }
@@ -154,19 +197,33 @@ public class PhantomJS {
             throw new IllegalStateException("PhantomJS binary not executable");
         }
 
-        if (script == null || script.trim().isEmpty()) {
+        if (script == null) {
             throw new IllegalArgumentException("Script is a required argument");
         }
 
-        String pjsPath = PHANTOM_JS_BINARY.toPath().toAbsolutePath().toString();
+        // load the script into memory
+        byte[] is = IOUtils.toByteArray(script);
+        // calculate a hash of the script to use as a filename
+        String fname = bytesToHex(md.digest(is)).substring(0, 10);
+        Path scriptPath = TEMP_SCRIPT_DIR.resolve(fname);
 
+        // create the parent directory
+        Files.createDirectories(TEMP_SCRIPT_DIR);
+
+        // copy the byte array to the file
+        try (FileOutputStream fos = new FileOutputStream(scriptPath.toFile())) {
+            fos.write(is);
+        }
+
+        // start with the phantomjs path
+        String pjsPath = PHANTOM_JS_BINARY.toPath().toAbsolutePath().toString();
         StringBuilder cmd = new StringBuilder(pjsPath);
 
         if (options != null) {
             cmd.append(options.toString());
         }
 
-        cmd.append(" ").append(script);
+        cmd.append(" ").append(scriptPath.toAbsolutePath().toString());
 
         if (arguments != null && arguments.length > 0) {
             for (String arg : arguments) {
@@ -178,4 +235,6 @@ public class PhantomJS {
 
         Runtime.getRuntime().exec(cmd.toString());
     }
+
+
 }
