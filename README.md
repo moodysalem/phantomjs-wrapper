@@ -2,10 +2,10 @@
 A Java wrapper around the PhantomJS binaries
 
 # Public Interface
-PhantomJS#exec(InputStream script, PhantomJSOptions options, String... arguments)
+### PhantomJS#exec(InputStream script, PhantomJSOptions options, String... arguments)
 
 Execute a phantomjs script stored in the InputStream
 
-PhantomJS#render(InputStream html, float width, PageSizeUnit widthUnit, float height, PageSizeUnit heightUnit,int viewportWidth, int viewportHeight, Format format)
+### PhantomJS#render(InputStream html, float width, PageSizeUnit widthUnit, float height, PageSizeUnit heightUnit,int viewportWidth, int viewportHeight, Format format)
 
 Use an included script to render the html in the InputStream using PhantomJS
