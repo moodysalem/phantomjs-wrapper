@@ -1,4 +1,4 @@
-package com.moodysalem.wrapper;
+package com.moodysalem.phantomjs.wrapper;
 
 import org.apache.commons.exec.CommandLine;
 

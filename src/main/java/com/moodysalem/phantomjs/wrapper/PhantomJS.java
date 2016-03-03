@@ -1,6 +1,6 @@
-package com.moodysalem.wrapper;
+package com.moodysalem.phantomjs.wrapper;
 
-import com.moodysalem.util.OperatingSystem;
+import com.moodysalem.phantomjs.util.OperatingSystem;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.PumpStreamHandler;

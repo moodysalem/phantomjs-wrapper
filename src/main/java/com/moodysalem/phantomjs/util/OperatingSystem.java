@@ -1,4 +1,4 @@
-package com.moodysalem.util;
+package com.moodysalem.phantomjs.util;
 
 public class OperatingSystem {
     public enum OS {
