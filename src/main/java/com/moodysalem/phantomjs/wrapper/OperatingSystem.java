@@ -1,6 +1,6 @@
-package com.moodysalem.phantomjs.util;
+package com.moodysalem.phantomjs.wrapper;
 
-public class OperatingSystem {
+class OperatingSystem {
     public enum OS {
         WINDOWS,
         MAC,

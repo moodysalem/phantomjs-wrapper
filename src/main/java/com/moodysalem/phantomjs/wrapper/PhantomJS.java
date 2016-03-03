@@ -1,8 +1,8 @@
 package com.moodysalem.phantomjs.wrapper;
 
-import com.moodysalem.phantomjs.util.OperatingSystem;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.PumpStreamHandler;
 
 import java.io.*;
@@ -13,6 +13,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -23,6 +24,8 @@ public class PhantomJS {
     private static final Path TEMP_DIR = Paths.get(System.getProperty("java.io.tmpdir", "~")).resolve("java-phantomjs")
             .resolve(Long.toString(System.currentTimeMillis()));
     private static final Path TEMP_SCRIPT_DIR = TEMP_DIR.resolve("scripts");
+    private static final Path TEMP_SOURCE_DIR = TEMP_DIR.resolve("source");
+    private static final Path TEMP_RENDER_DIR = TEMP_DIR.resolve("output");
     private static final MessageDigest md;
 
     // this will store a reference to the executable phantomjs binary after we unzip the resource
@@ -184,6 +187,89 @@ public class PhantomJS {
         return new String(hexChars);
     }
 
+    /**
+     * The supported formats for PhantomJS
+     */
+    public enum Format {
+        PDF, PNG, JPEG, BMP, PPM, GIF
+    }
+
+    /**
+     * The supported width and height units for paper size
+     */
+    public enum PageSizeUnit {
+        in, cm, px
+    }
+
+    private static final AtomicLong RENDER_NUMBER = new AtomicLong(0);
+
+    /**
+     * Renders html to a document with the specified format
+     *
+     * @return an input stream for the rendered file
+     */
+    public static InputStream render(InputStream html,
+                                     // these are relevant for printed formats, e.g. pdf
+                                     float width, PageSizeUnit widthUnit, float height, PageSizeUnit heightUnit,
+                                     // these are especially relevant for responsive websites
+                                     int viewportWidth, int viewportHeight,
+                                     // the output format
+                                     Format format) throws IOException {
+        // this is the render script
+        InputStream renderScript = PhantomJS.class.getResourceAsStream("render.js");
+
+        if (format == null) {
+            throw new IllegalArgumentException("Format is required");
+        }
+
+        // printed formats use this
+        if (Format.PDF.equals(format)) {
+            if (width < 0) {
+                throw new IllegalArgumentException("Width must be greater than 0");
+            }
+            if (height < 0) {
+                throw new IllegalArgumentException("Height must be greater than 0");
+            }
+            if (widthUnit == null) {
+                throw new IllegalArgumentException("Width unit is required");
+            }
+            if (heightUnit == null) {
+                throw new IllegalArgumentException("Height unit is required");
+            }
+        }
+
+        if (viewportHeight < 0 || viewportWidth < 0) {
+            throw new IllegalArgumentException("Viewport height and width must be greater than 0");
+        }
+
+        // create the parent directories
+        Files.createDirectories(TEMP_SOURCE_DIR);
+        Files.createDirectories(TEMP_RENDER_DIR);
+
+        final long renderNumber;
+        synchronized (RENDER_NUMBER) {
+            renderNumber = RENDER_NUMBER.addAndGet(1);
+        }
+
+        // create a source file for the source html input stream
+        Path sourcePath = TEMP_SOURCE_DIR.resolve("source-" + renderNumber);
+        Files.copy(html, sourcePath);
+
+        // the output file
+        Path renderPath = TEMP_RENDER_DIR.resolve(String.format("target-%s.%s", renderNumber, format.name().toLowerCase()));
+
+        exec(renderScript,
+                width + widthUnit.name(), height + heightUnit.name(),
+                // the path of
+                Integer.toString(viewportWidth), Integer.toString(viewportHeight),
+                // the path of source and target
+                sourcePath.toAbsolutePath().toString(),
+                renderPath.toAbsolutePath().toString()
+        );
+
+        return new FileInputStream(renderPath.toFile());
+    }
+
 
     public static void exec(InputStream script, String... arguments) throws IOException {
         exec(script, null, arguments);
@@ -241,7 +327,7 @@ public class PhantomJS {
             }
         }
 
-        LOG.log(Level.INFO, String.format("Running command: %s", cmd.getExecutable()));
+        LOG.log(Level.INFO, String.format("Running command: %s", cmd.toString()));
         DefaultExecutor de = new DefaultExecutor();
         de.setStreamHandler(new PumpStreamHandler(System.out));
         de.execute(cmd);
