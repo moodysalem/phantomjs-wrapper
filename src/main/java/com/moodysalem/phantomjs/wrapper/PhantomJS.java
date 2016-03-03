@@ -70,7 +70,7 @@ public class PhantomJS {
         String osString = null;
         switch (os) {
             case WINDOWS:
-                osString = "linux-x86_64";
+                osString = "windows";
                 break;
 
             case MAC:
@@ -78,7 +78,7 @@ public class PhantomJS {
                 break;
 
             case UNIX:
-                osString = "windows";
+                osString = "linux-x86_64";
                 break;
         }
 
