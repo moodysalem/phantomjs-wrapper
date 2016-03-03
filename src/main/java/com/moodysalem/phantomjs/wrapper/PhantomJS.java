@@ -126,7 +126,7 @@ public class PhantomJS {
 
                 // only process the phantomjs bin entry
                 if (entryName.indexOf(phantomJSbin) != entryName.length() - phantomJSbin.length()) {
-                    LOG.log(Level.FINE, "Skipping entry: " + entryName);
+                    LOG.log(Level.INFO, "Skipping entry: " + entryName);
                     continue;
                 }
 
@@ -300,8 +300,12 @@ public class PhantomJS {
      * @throws IOException if cmd execution fails
      */
     public static void exec(InputStream script, PhantomJSOptions options, String... arguments) throws IOException {
-        if (PHANTOM_JS_BINARY == null || !PHANTOM_JS_BINARY.exists()) {
-            throw new IllegalStateException("PhantomJS binary not found or failed to initialize");
+        if (PHANTOM_JS_BINARY == null) {
+            throw new IllegalStateException("PhantomJS binary not found");
+        }
+
+        if (!PHANTOM_JS_BINARY.canExecute()) {
+            throw new IllegalStateException("Unable to execute phantomJS binaries");
         }
 
         if (!PHANTOM_JS_BINARY.canExecute()) {
