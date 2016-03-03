@@ -126,7 +126,7 @@ public class PhantomJS {
 
                 // only process the phantomjs bin entry
                 if (entryName.indexOf(phantomJSbin) != entryName.length() - phantomJSbin.length()) {
-                    LOG.log(Level.INFO, "Skipping entry: " + entryName);
+                    LOG.log(Level.FINE, "Skipping entry: " + entryName);
                     continue;
                 }
 
