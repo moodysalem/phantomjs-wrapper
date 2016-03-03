@@ -19,7 +19,7 @@ page.paperSize = {
 };
 
 log('reading source file');
-page.html = fs.read(sourcePath);
+page.content = fs.read(sourcePath);
 
 log('setting zoom');
 page.evaluate(function () {
