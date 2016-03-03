@@ -36,7 +36,7 @@ public class PhantomJS {
         md = getMessageDigest();
 
         String resourcePath = getZipPath();
-
+        LOG.info("Initializing PhantomJS with resource path: " + resourcePath);
         if (resourcePath != null) {
             unzipPhantomJSbin(TEMP_DIR, resourcePath);
         }
@@ -82,7 +82,7 @@ public class PhantomJS {
                 break;
         }
 
-        return String.format("phantomjs-2.1.1-%s.zip", osString);
+        return String.format("com/moodysalem/phantomjs/wrapper/phantomjs-2.1.1-%s.zip", osString);
     }
 
     /**
