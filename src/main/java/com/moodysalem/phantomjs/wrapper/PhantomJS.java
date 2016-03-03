@@ -204,9 +204,18 @@ public class PhantomJS {
     private static final AtomicLong RENDER_NUMBER = new AtomicLong(0);
 
     /**
-     * Renders html to a document with the specified format
+     * Renders the input html and provides an input stream for the output file
      *
-     * @return an input stream for the rendered file
+     * @param html           to render
+     * @param width          of paper
+     * @param widthUnit      of paper
+     * @param height         of paper
+     * @param heightUnit     of paper
+     * @param viewportWidth  of emulated browser client
+     * @param viewportHeight of emulated browser client
+     * @param format         to render
+     * @return input stream referencing the render output
+     * @throws IOException if any of the file operations fail
      */
     public static InputStream render(InputStream html,
                                      // these are relevant for printed formats, e.g. pdf
