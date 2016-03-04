@@ -6,7 +6,7 @@ A Java wrapper around the PhantomJS binaries with additional support for renderi
 
 Execute the PhantomJS script stored in the InputStream
 
-##### PhantomJS#(InputStream html, PaperSize paperSize, ViewportDimensions dimensions, Margin margin, RenderFormat renderFormat)
+##### PhantomJS#render(InputStream html, PaperSize paperSize, ViewportDimensions dimensions, Margin margin, RenderFormat renderFormat)
 
 Use an included script to render the html in the InputStream using PhantomJS
 
