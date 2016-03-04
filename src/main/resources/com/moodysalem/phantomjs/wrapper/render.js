@@ -11,13 +11,34 @@ var page = require('webpage').create(),
   marginBottom = system.args[ 7 ],
   marginLeft = system.args[ 8 ],
   headerHeight = system.args[ 9 ],
-  footerHeight = system.args[ 10 ],
-  sourcePath = system.args[ 11 ],
-  targetPath = system.args[ 12 ],
+  headerFunctionFile = system.args[ 10 ],
+  footerHeight = system.args[ 11 ],
+  footerFunctionFile = system.args[ 12 ],
+  sourcePath = system.args[ 13 ],
+  targetPath = system.args[ 14 ],
   log = system.stdout.writeLine,
   err = system.stderr.writeLine;
 
 page.viewportSize = { width: viewportWidth, height: viewportHeight };
+
+
+var getFn = function (str) {
+  return eval('var fn = ' + str + '; fn');
+};
+
+try {
+  var headerFunction = getFn(fs.read(headerFunctionFile));
+} catch (error) {
+  err('failed to read header function: ' + error);
+  phantom.exit(4);
+}
+
+try {
+  var footerFunction = getFn(fs.read(footerFunctionFile));
+} catch (error) {
+  err('failed to read footer function: ' + error);
+  phantom.exit(5);
+}
 
 var paperSize = {
   width: width,
@@ -30,11 +51,13 @@ var paperSize = {
   },
 
   header: {
-    height: headerHeight
+    height: headerHeight,
+    content: phantom.callback(headerFunction)
   },
 
   footer: {
-    height: footerHeight
+    height: footerHeight,
+    content: phantom.callback(footerFunction)
   }
 };
 

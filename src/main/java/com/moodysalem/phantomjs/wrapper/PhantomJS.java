@@ -170,7 +170,7 @@ public class PhantomJS {
     private static final AtomicLong RENDER_NUMBER = new AtomicLong(0);
 
     private static synchronized long getRenderNumber() {
-        return RENDER_NUMBER.addAndGet(1);
+        return RENDER_NUMBER.incrementAndGet();
     }
 
     // used for bytesToHex
@@ -240,6 +240,14 @@ public class PhantomJS {
         Path sourcePath = TEMP_SOURCE_DIR.resolve("source-" + renderNumber);
         Files.copy(html, sourcePath);
 
+        // create a source file for the header function
+        Path headerFunctionPath = TEMP_SOURCE_DIR.resolve("header-" + renderNumber);
+        Files.copy(new ByteArrayInputStream(headerInfo.getGeneratorFunction().getBytes()), headerFunctionPath);
+
+        // create a source file for the footer function
+        Path footerFunctionPath = TEMP_SOURCE_DIR.resolve("footer-" + renderNumber);
+        Files.copy(new ByteArrayInputStream(headerInfo.getGeneratorFunction().getBytes()), footerFunctionPath);
+
         // the output file
         Path renderPath = TEMP_RENDER_DIR.resolve(String.format("target-%s.%s", renderNumber, renderFormat.name().toLowerCase()));
 
@@ -247,7 +255,8 @@ public class PhantomJS {
                 paperSize.getWidth(), paperSize.getHeight(),
                 dimensions.getWidth(), dimensions.getHeight(),
                 margin.getTop(), margin.getRight(), margin.getBottom(), margin.getLeft(),
-                headerInfo.getHeight(), footerInfo.getHeight(),
+                headerInfo.getHeight(), headerFunctionPath.toAbsolutePath().toString(),
+                footerInfo.getHeight(), footerFunctionPath.toAbsolutePath().toString(),
                 sourcePath.toAbsolutePath().toString(),
                 renderPath.toAbsolutePath().toString()
         );
@@ -261,6 +270,10 @@ public class PhantomJS {
                 throw new RenderException("Failed to set zoom on document body");
             case 3:
                 throw new RenderException("Failed to render pdf to output");
+            case 4:
+                throw new RenderException("Failed to read header function");
+            case 5:
+                throw new RenderException("Failed to read footer function");
             default:
                 throw new RenderException("Render script failed for an unknown reason");
         }
