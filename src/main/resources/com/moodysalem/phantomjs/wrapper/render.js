@@ -10,13 +10,16 @@ var page = require('webpage').create(),
   marginRight = system.args[ 6 ],
   marginBottom = system.args[ 7 ],
   marginLeft = system.args[ 8 ],
-  sourcePath = system.args[ 9 ],
-  targetPath = system.args[ 10 ],
+  headerHeight = system.args[ 9 ],
+  footerHeight = system.args[ 10 ],
+  sourcePath = system.args[ 11 ],
+  targetPath = system.args[ 12 ],
   log = system.stdout.writeLine,
   err = system.stderr.writeLine;
 
 page.viewportSize = { width: viewportWidth, height: viewportHeight };
-page.paperSize = {
+
+var paperSize = {
   width: width,
   height: height,
   margin: {
@@ -25,17 +28,42 @@ page.paperSize = {
     bottom: marginBottom,
     left: marginLeft
   }
+
+  //header: {
+  //  height: headerHeight
+  //},
+  //
+  //footer: {
+  //  height: footerHeight
+  //}
 };
 
-log('reading source file: ' + sourcePath);
-page.content = fs.read(sourcePath);
+page.paperSize = paperSize;
 
-log('setting zoom on html');
-page.evaluate(function () {
-  document.body.style.zoom = 0.75;
-});
+try {
+  log('reading source file: ' + sourcePath);
+  page.content = fs.read(sourcePath);
+} catch (error) {
+  err('failed to read source file: ' + error);
+  phantom.exit(1);
+}
 
-log('rendering to target file');
-page.render(targetPath);
+try {
+  log('setting zoom on html to 0.75');
+  page.evaluate(function () {
+    document.body.style.zoom = 0.75;
+  });
+} catch (error) {
+  err('failed to set zoom on html file: ' + error);
+  phantom.exit(2);
+}
+
+try {
+  log('rendering to target path: ' + targetPath);
+  page.render(targetPath);
+} catch (error) {
+  err('failed to render pdf: ' + error);
+  phantom.exit(3);
+}
 
 phantom.exit(0);

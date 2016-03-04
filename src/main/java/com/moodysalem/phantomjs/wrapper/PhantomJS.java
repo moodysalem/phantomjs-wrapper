@@ -193,10 +193,34 @@ public class PhantomJS {
         return new String(hexChars);
     }
 
+    /**
+     * Render the html in the input stream with the following properties using a script included with the wrapper
+     *
+     * @param html         to render
+     * @param paperSize    size of the paper (for printed output formats)
+     * @param dimensions   dimensions of the viewport
+     * @param margin       of the paper
+     * @param hfi          the info about the page header and footer for the output
+     * @param renderFormat the format to render
+     * @return an inputstream of the rendered output
+     * @throws IOException     if any file operations fail
+     * @throws RenderException if the render script fails for any reason
+     */
     public static InputStream render(InputStream html, PaperSize paperSize, ViewportDimensions dimensions,
-                                     Margin margin, RenderFormat renderFormat) throws IOException {
-        if (html == null || renderFormat == null || paperSize == null || dimensions == null || margin == null) {
+                                     Margin margin, HeaderFooterInfo hfi, RenderFormat renderFormat) throws IOException, RenderException {
+        if (html == null || renderFormat == null || paperSize == null) {
             throw new NullPointerException();
+        }
+
+        // set some defaults for parameters
+        if (dimensions == null) {
+            dimensions = ViewportDimensions.VIEW_1280_1024;
+        }
+        if (margin == null) {
+            margin = Margin.ZERO;
+        }
+        if (hfi == null) {
+            hfi = HeaderFooterInfo.NONE;
         }
 
         // The render script
@@ -215,20 +239,32 @@ public class PhantomJS {
         // the output file
         Path renderPath = TEMP_RENDER_DIR.resolve(String.format("target-%s.%s", renderNumber, renderFormat.name().toLowerCase()));
 
-        exec(renderScript,
+        int renderExitCode = exec(renderScript,
                 paperSize.getWidth(), paperSize.getHeight(),
                 dimensions.getWidth(), dimensions.getHeight(),
                 margin.getTop(), margin.getRight(), margin.getBottom(), margin.getLeft(),
+                hfi.getHeaderHeight(), hfi.getFooterHeight(),
                 sourcePath.toAbsolutePath().toString(),
                 renderPath.toAbsolutePath().toString()
         );
 
-        return new FileInputStream(renderPath.toFile());
+        switch (renderExitCode) {
+            case 0:
+                return new FileInputStream(renderPath.toFile());
+            case 1:
+                throw new RenderException("Failed to read source html file from input stream");
+            case 2:
+                throw new RenderException("Failed to set zoom on document body");
+            case 3:
+                throw new RenderException("Failed to render pdf to output");
+            default:
+                throw new RenderException("Render script failed for an unknown reason");
+        }
     }
 
 
-    public static void exec(InputStream script, String... arguments) throws IOException {
-        exec(script, null, arguments);
+    public static int exec(InputStream script, String... arguments) throws IOException {
+        return exec(script, null, arguments);
     }
 
     private static class LoggerOutputStream extends LogOutputStream {
@@ -256,9 +292,10 @@ public class PhantomJS {
      * @param script    path of script to execute
      * @param options   options to execute
      * @param arguments list of arguments
+     * @return the exit code of the script
      * @throws IOException if cmd execution fails
      */
-    public static void exec(InputStream script, PhantomJSOptions options, String... arguments) throws IOException {
+    public static int exec(InputStream script, PhantomJSOptions options, String... arguments) throws IOException {
         if (PHANTOM_JS_BINARY == null) {
             throw new IllegalStateException("PhantomJS binary not found");
         }
@@ -309,7 +346,7 @@ public class PhantomJS {
         LOG.log(Level.INFO, String.format("Running command: %s", cmd.toString()));
         DefaultExecutor de = new DefaultExecutor();
         de.setStreamHandler(new PumpStreamHandler(STDOUT_LOGGER, STDERR_LOGGER));
-        de.execute(cmd);
+        return de.execute(cmd);
     }
 
     /**
