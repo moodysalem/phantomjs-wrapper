@@ -1,4 +1,3 @@
-"use strict";
 var page = require('webpage').create(),
   system = require('system'),
   fs = require('fs'),
@@ -52,12 +51,12 @@ var paperSize = {
 
   header: {
     height: headerHeight,
-    content: phantom.callback(headerFunction)
+    contents: phantom.callback(headerFunction)
   },
 
   footer: {
     height: footerHeight,
-    content: phantom.callback(footerFunction)
+    contents: phantom.callback(footerFunction)
   }
 };
 

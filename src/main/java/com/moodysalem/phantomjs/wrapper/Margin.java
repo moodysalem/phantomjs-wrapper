@@ -20,6 +20,10 @@ public class Margin {
         this(margin, unit, margin, unit, margin, unit, margin, unit);
     }
 
+    public Margin(float topBottomMargin, SizeUnit topBottomUnit, float leftRightMargin, SizeUnit leftRightUnit) {
+        this(topBottomMargin, topBottomUnit, topBottomMargin, topBottomUnit, leftRightMargin, leftRightUnit, leftRightMargin, leftRightUnit);
+    }
+
     public Margin(float top, SizeUnit topUnit, float bottom, SizeUnit bottomUnit,
                   float left, SizeUnit leftUnit, float right, SizeUnit rightUnit) {
         if (topUnit == null || bottomUnit == null || leftUnit == null || rightUnit == null) {

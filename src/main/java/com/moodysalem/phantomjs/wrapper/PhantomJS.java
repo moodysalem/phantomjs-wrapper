@@ -246,7 +246,7 @@ public class PhantomJS {
 
         // create a source file for the footer function
         Path footerFunctionPath = TEMP_SOURCE_DIR.resolve("footer-" + renderNumber);
-        Files.copy(new ByteArrayInputStream(headerInfo.getGeneratorFunction().getBytes()), footerFunctionPath);
+        Files.copy(new ByteArrayInputStream(footerInfo.getGeneratorFunction().getBytes()), footerFunctionPath);
 
         // the output file
         Path renderPath = TEMP_RENDER_DIR.resolve(String.format("target-%s.%s", renderNumber, renderFormat.name().toLowerCase()));
