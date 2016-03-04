@@ -25,6 +25,9 @@ public class PaperSize {
         if (widthUnit == null || heightUnit == null || orientation == null) {
             throw new NullPointerException();
         }
+        if (width <= 0 || height <= 0) {
+            throw new IllegalArgumentException();
+        }
         this.width = width;
         this.widthUnit = widthUnit;
         this.height = height;

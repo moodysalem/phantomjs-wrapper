@@ -195,7 +195,7 @@ public class PhantomJS {
 
     public static InputStream render(InputStream html, PaperSize paperSize, ViewportDimensions dimensions,
                                      Margin margin, RenderFormat renderFormat) throws IOException {
-        if (html == null || renderFormat == null || paperSize == null || dimensions == null || margin == null || renderFormat == null) {
+        if (html == null || renderFormat == null || paperSize == null || dimensions == null || margin == null) {
             throw new NullPointerException();
         }
 
