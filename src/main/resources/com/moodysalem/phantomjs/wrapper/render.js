@@ -27,15 +27,15 @@ var paperSize = {
     right: marginRight,
     bottom: marginBottom,
     left: marginLeft
-  }
+  },
 
-  //header: {
-  //  height: headerHeight
-  //},
-  //
-  //footer: {
-  //  height: footerHeight
-  //}
+  header: {
+    height: headerHeight
+  },
+
+  footer: {
+    height: footerHeight
+  }
 };
 
 page.paperSize = paperSize;

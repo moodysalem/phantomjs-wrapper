@@ -176,7 +176,6 @@ public class PhantomJS {
     // used for bytesToHex
     private final static char[] hexArray = "0123456789ABCDEF".toCharArray();
 
-
     /**
      * Converts a byte array to its hexadecimal representation
      *
@@ -200,14 +199,16 @@ public class PhantomJS {
      * @param paperSize    size of the paper (for printed output formats)
      * @param dimensions   dimensions of the viewport
      * @param margin       of the paper
-     * @param hfi          the info about the page header and footer for the output
+     * @param headerInfo   how the header is generated
+     * @param footerInfo   how the footer is generated
      * @param renderFormat the format to render
-     * @return an inputstream of the rendered output
+     * @return a stream of the rendered output
      * @throws IOException     if any file operations fail
      * @throws RenderException if the render script fails for any reason
      */
     public static InputStream render(InputStream html, PaperSize paperSize, ViewportDimensions dimensions,
-                                     Margin margin, HeaderFooterInfo hfi, RenderFormat renderFormat) throws IOException, RenderException {
+                                     Margin margin, BannerInfo headerInfo, BannerInfo footerInfo,
+                                     RenderFormat renderFormat) throws IOException, RenderException {
         if (html == null || renderFormat == null || paperSize == null) {
             throw new NullPointerException();
         }
@@ -219,8 +220,11 @@ public class PhantomJS {
         if (margin == null) {
             margin = Margin.ZERO;
         }
-        if (hfi == null) {
-            hfi = HeaderFooterInfo.NONE;
+        if (headerInfo == null) {
+            headerInfo = BannerInfo.EMPTY;
+        }
+        if (footerInfo == null) {
+            footerInfo = BannerInfo.EMPTY;
         }
 
         // The render script
@@ -243,7 +247,7 @@ public class PhantomJS {
                 paperSize.getWidth(), paperSize.getHeight(),
                 dimensions.getWidth(), dimensions.getHeight(),
                 margin.getTop(), margin.getRight(), margin.getBottom(), margin.getLeft(),
-                hfi.getHeaderHeight(), hfi.getFooterHeight(),
+                headerInfo.getHeight(), footerInfo.getHeight(),
                 sourcePath.toAbsolutePath().toString(),
                 renderPath.toAbsolutePath().toString()
         );

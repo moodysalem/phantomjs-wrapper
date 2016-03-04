@@ -19,7 +19,7 @@ public class TestPhantomJS {
                 PaperSize.Letter,
                 ViewportDimensions.VIEW_1280_1024,
                 Margin.ZERO,
-                HeaderFooterInfo.NONE,
+                null, null,
                 RenderFormat.PDF);
 
         PDDocument doc = PDDocument.load(is);
