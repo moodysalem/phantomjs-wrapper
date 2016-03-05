@@ -22,7 +22,7 @@ import java.util.zip.ZipInputStream;
 public class PhantomJS {
     private static final Logger LOG = Logger.getLogger(PhantomJS.class.getName());
     private static final Path TEMP_DIR = Paths.get(System.getProperty("java.io.tmpdir", "~")).resolve("java-phantomjs")
-            .resolve(Long.toString(System.currentTimeMillis()));
+        .resolve(Long.toString(System.currentTimeMillis()));
     private static final Path TEMP_SCRIPT_DIR = TEMP_DIR.resolve("scripts");
     private static final Path TEMP_SOURCE_DIR = TEMP_DIR.resolve("source");
     private static final Path TEMP_RENDER_DIR = TEMP_DIR.resolve("output");
@@ -254,13 +254,15 @@ public class PhantomJS {
         Path renderPath = TEMP_RENDER_DIR.resolve(String.format("target-%s.%s", renderNumber, renderFormat.name().toLowerCase()));
 
         int renderExitCode = exec(renderScript,
-                paperSize.getWidth(), paperSize.getHeight(),
-                dimensions.getWidth(), dimensions.getHeight(),
-                margin.getTop(), margin.getRight(), margin.getBottom(), margin.getLeft(),
-                headerInfo.getHeight(), headerFunctionPath.toAbsolutePath().toString(),
-                footerInfo.getHeight(), footerFunctionPath.toAbsolutePath().toString(),
-                sourcePath.toAbsolutePath().toString(),
-                renderPath.toAbsolutePath().toString()
+            new CommandLineArgument(paperSize.getWidth()), new CommandLineArgument(paperSize.getHeight()),
+            new CommandLineArgument(dimensions.getWidth()), new CommandLineArgument(dimensions.getHeight()),
+            new CommandLineArgument(margin.getTop()), new CommandLineArgument(margin.getRight()),
+            new CommandLineArgument(margin.getBottom()), new CommandLineArgument(margin.getLeft()),
+            new CommandLineArgument(headerInfo.getHeight()), new CommandLineArgument("${headerFunctionFile}", "headerFunctionFile", headerFunctionPath.toFile()),
+            new CommandLineArgument(footerInfo.getHeight()), new CommandLineArgument("${footerFunctionFile}", "footerFunctionFile", footerFunctionPath.toFile()),
+            new CommandLineArgument(OperatingSystem.get().name()),
+            new CommandLineArgument("${sourcePath}", "sourcePath", sourcePath.toFile()),
+            new CommandLineArgument("${renderPath}", "renderPath", renderPath.toFile())
         );
 
         switch (renderExitCode) {
@@ -282,7 +284,7 @@ public class PhantomJS {
     }
 
 
-    public static int exec(InputStream script, String... arguments) throws IOException {
+    public static int exec(InputStream script, CommandLineArgument... arguments) throws IOException {
         return exec(script, null, arguments);
     }
 
@@ -314,7 +316,7 @@ public class PhantomJS {
      * @return the exit code of the script
      * @throws IOException if cmd execution fails
      */
-    public static int exec(InputStream script, PhantomJSOptions options, String... arguments) throws IOException {
+    public static int exec(InputStream script, PhantomJSOptions options, CommandLineArgument... arguments) throws IOException {
         if (PHANTOM_JS_BINARY == null) {
             throw new IllegalStateException("PhantomJS binary not found");
         }
@@ -357,8 +359,8 @@ public class PhantomJS {
         }
 
         if (arguments != null && arguments.length > 0) {
-            for (String arg : arguments) {
-                cmd.addArgument(arg);
+            for (CommandLineArgument arg : arguments) {
+                arg.apply(cmd);
             }
         }
 

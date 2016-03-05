@@ -13,8 +13,9 @@ var page = require('webpage').create(),
   headerFunctionFile = system.args[ 10 ],
   footerHeight = system.args[ 11 ],
   footerFunctionFile = system.args[ 12 ],
-  sourcePath = system.args[ 13 ],
-  targetPath = system.args[ 14 ],
+  operatingSystem = system.args[ 13 ],
+  sourcePath = system.args[ 14 ],
+  targetPath = system.args[ 15 ],
   log = system.stdout.writeLine,
   err = system.stderr.writeLine;
 
@@ -70,14 +71,16 @@ try {
   phantom.exit(1);
 }
 
-try {
-  log('setting zoom on html to 0.75');
-  page.evaluate(function () {
-    document.body.style.zoom = 0.75;
-  });
-} catch (error) {
-  err('failed to set zoom on html file: ' + error);
-  phantom.exit(2);
+if (operatingSystem !== "WINDOWS") {
+  try {
+    log('setting zoom on html to 0.75');
+    page.evaluate(function () {
+      document.body.style.zoom = 0.75;
+    });
+  } catch (error) {
+    err('failed to set zoom on html file: ' + error);
+    phantom.exit(2);
+  }
 }
 
 try {
