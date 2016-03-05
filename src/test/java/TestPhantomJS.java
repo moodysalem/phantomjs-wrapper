@@ -1,6 +1,5 @@
 import com.moodysalem.phantomjs.wrapper.*;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.text.PDFTextStripper;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
