@@ -101,7 +101,7 @@ public class PhantomJS {
             ext = ".exe";
         }
 
-        return String.format("bin%sphantomjs%s", File.separator, ext);
+        return String.format("bin/phantomjs%s", ext);
     }
 
     /**
@@ -161,6 +161,8 @@ public class PhantomJS {
                         PHANTOM_JS_BINARY = null;
                     }
                 }
+
+                break;
             }
         } catch (IOException e) {
             LOG.log(Level.SEVERE, "Failed to read zip file from resources", e);
