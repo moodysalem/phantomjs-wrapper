@@ -360,7 +360,7 @@ public class PhantomJS {
 
         if (arguments != null && arguments.length > 0) {
             for (CommandLineArgument arg : arguments) {
-                arg.apply(cmd);
+                arg.apply(cmd, args);
             }
         }
 

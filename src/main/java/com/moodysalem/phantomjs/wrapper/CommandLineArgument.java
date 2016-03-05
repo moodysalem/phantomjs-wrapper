@@ -34,12 +34,12 @@ public class CommandLineArgument {
         this.keyVals = keyVals;
     }
 
-    public void apply(CommandLine cmdLine) {
+    public void apply(CommandLine cmdLine, Map<String, Object> argMap) {
         cmdLine.addArgument(template);
         if (keyVals != null) {
             for (String k : keyVals.keySet()) {
                 Object v = keyVals.get(k);
-                ((Map<String, Object>) cmdLine.getSubstitutionMap()).put(k, v);
+                argMap.put(k, v);
             }
         }
     }
