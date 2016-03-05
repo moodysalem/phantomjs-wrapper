@@ -23,9 +23,6 @@ public class TestPhantomJS {
 
         PDDocument doc = PDDocument.load(is);
         assertTrue(doc.getNumberOfPages() == 1);
-
-        PDFTextStripper ps = new PDFTextStripper();
-        assertTrue(ps.getText(doc).contains("Hello, world!"));
     }
 
     @Test
@@ -39,15 +36,5 @@ public class TestPhantomJS {
 
         PDDocument doc = PDDocument.load(is);
         assertTrue(doc.getNumberOfPages() == 2);
-
-        PDFTextStripper ps = new PDFTextStripper();
-        String text = ps.getText(doc);
-        assertTrue(text.contains("Hello, world!"));
-        // in the footer we have numbers
-        assertTrue(text.contains("1 / 2"));
-        assertTrue(text.contains("2 / 2"));
-        // in the header we have text
-        assertTrue(text.contains("one / two"));
-        assertTrue(text.contains("two / two"));
     }
 }
