@@ -39,6 +39,11 @@ public class CommandLineArgument {
         if (keyVals != null) {
             for (String k : keyVals.keySet()) {
                 Object v = keyVals.get(k);
+
+                if (argMap.containsKey(k)) {
+                    throw new IllegalStateException("Cannot overwrite substition map keys");
+                }
+
                 argMap.put(k, v);
             }
         }

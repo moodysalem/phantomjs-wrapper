@@ -351,13 +351,16 @@ public class PhantomJS {
         Map<String, Object> args = new HashMap<>();
         cmd.setSubstitutionMap(args);
 
-        args.put("script", scriptPath.toFile());
-        cmd.addArgument("${script}");
-
+        // options first
         if (options != null) {
             options.apply(cmd, args);
         }
 
+        // then script
+        args.put("script", scriptPath.toFile());
+        cmd.addArgument("${script}");
+
+        // then script arguments
         if (arguments != null && arguments.length > 0) {
             for (CommandLineArgument arg : arguments) {
                 arg.apply(cmd, args);

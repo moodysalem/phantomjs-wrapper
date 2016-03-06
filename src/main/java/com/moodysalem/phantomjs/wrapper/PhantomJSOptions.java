@@ -222,83 +222,97 @@ public class PhantomJSOptions {
     }
 
     public void apply(CommandLine cmd, Map<String, Object> args) {
+        List<CommandLineArgument> arguments = new ArrayList<>();
+
         if (isHelp()) {
-            cmd.addArgument("--help");
+            arguments.add(new CommandLineArgument("--help"));
         }
         if (isVersion()) {
-            cmd.addArgument("--version");
+            arguments.add(new CommandLineArgument("--version"));
         }
 
         if (getCookiesFile() != null) {
-            cmd.addArgument("--cookies-file=${cookies-file}");
-            args.put("cookies-file", getCookiesFile());
+            arguments.add(new CommandLineArgument("--cookies-file=${cookies-file}", "cookies-file", getCookiesFile()));
         }
 
-        if (getDiskCache()) {
-            cmd.addArgument("--disk-cache=${disk-cache}" + getDiskCache());
+        if (getDiskCache() != null) {
+            arguments.add(new CommandLineArgument("--disk-cache=${disk-cache}", "disk-cache", getDiskCache()));
         }
 
-        if (getIgnoreSslErrors()) {
-            cmd.addArgument("--ignore-ssl-errors=" + getIgnoreSslErrors());
+        if (getIgnoreSslErrors() != null) {
+            arguments.add(new CommandLineArgument("--ignore-ssl-errors=${ignore-ssl-errors}", "ignore-ssl-errors",
+                    getIgnoreSslErrors()));
         }
 
-        if (getLoadImages()) {
-            cmd.addArgument("--load-images=" + getLoadImages());
+        if (getLoadImages() != null) {
+            arguments.add(new CommandLineArgument("--load-images=${load-images}", "load-images", getLoadImages()));
         }
 
         if (getLocalStoragePath() != null) {
-            cmd.addArgument("--local-storage-path=${local-storage-path}");
-            args.put("local-storage-path", getLocalStoragePath());
+            arguments.add(new CommandLineArgument("--local-storage-path=${local-storage-path}", "local-storage-path",
+                    getLocalStoragePath()));
         }
 
         if (getLocalToRemoteUrlAccess() != null) {
-            cmd.addArgument("--local-to-remote-url-access=" + getLocalToRemoteUrlAccess());
+            arguments.add(new CommandLineArgument("--local-to-remote-url-access=${local-remote-url-access}", "local-remote-url-access",
+                    getLocalToRemoteUrlAccess()));
         }
+
         if (getMaxDiskCacheSize() != null) {
-            cmd.addArgument("--max-disk-cache-size=" + getMaxDiskCacheSize());
+            arguments.add(new CommandLineArgument("--max-disk-cache-size=${max-disk-cache-size}", "max-disk-cache-size",
+                    getMaxDiskCacheSize()));
         }
         if (getOutputEncoding() != null) {
-            cmd.addArgument("--output-encoding=" + getOutputEncoding());
+            arguments.add(new CommandLineArgument("--output-encoding=${output-encoding}", "output-encoding",
+                    getOutputEncoding()));
         }
         if (getRemoteDebuggerPort() != null) {
-            cmd.addArgument("--remote-debugger-port=" + getRemoteDebuggerPort());
+            arguments.add(new CommandLineArgument("--remote-debugger-port=${remote-debugger-port}", "remote-debugger-port",
+                    getRemoteDebuggerPort()));
         }
         if (getRemoteDebuggerAutorun() != null) {
-            cmd.addArgument("--remote-debugger-autorun=" + getRemoteDebuggerAutorun().name());
+            arguments.add(new CommandLineArgument("--remote-debugger-autorun=${remote-debugger-autorun}", "remote-debugger-autorun",
+                    getRemoteDebuggerAutorun().name()));
         }
 
         if (getProxy() != null) {
-            cmd.addArgument("--proxy=" + getProxy());
+            arguments.add(new CommandLineArgument("--proxy=${proxy}", "proxy", getProxy()));
         }
         if (getProxyType() != null) {
-            cmd.addArgument("--proxy-type=" + getProxyType());
+            arguments.add(new CommandLineArgument("--proxy-type=${proxy-type}", "proxy-type", getProxyType()));
         }
 
         if (getProxyAuth() != null) {
-            cmd.addArgument("--proxy-auth=" + getProxyAuth());
+            arguments.add(new CommandLineArgument("--proxy-auth=${proxy-auth}", "proxy-auth", getProxyAuth()));
         }
 
         if (getScriptEncoding() != null) {
-            cmd.addArgument("--script-encoding=" + getScriptEncoding());
+            arguments.add(new CommandLineArgument("--script-encoding=${script-encoding}", "script-encoding",
+                    getScriptEncoding()));
         }
         if (getSslProtocol() != null) {
-            cmd.addArgument("--ssl-protocol=" + getSslProtocol().name());
+            arguments.add(new CommandLineArgument("--ssl-protocol=${ssl-protocol}", "ssl-protocol", getSslProtocol().name()));
         }
 
         if (getSslCertificatesPath() != null) {
-            cmd.addArgument("--ssl-certificates-path=" + getSslCertificatesPath());
+            arguments.add(new CommandLineArgument("--ssl-certificates-path=${ssl-cert-path}", "ssl-cert-path",
+                    getSslCertificatesPath()));
         }
         if (getWebSecurity() != null) {
-            cmd.addArgument("--web-security=" + getWebSecurity());
+            arguments.add(new CommandLineArgument("--web-security=${web-security}", "web-security", getWebSecurity()));
         }
 
         if (getWebdriver() != null) {
-            cmd.addArgument("--webdriver");
+            arguments.add(new CommandLineArgument("--webdriver"));
             if (getWebdriverSeleniumGridHub() != null) {
-                cmd.addArgument("--webdriver-selenium-grid-hub=" + getWebdriverSeleniumGridHub());
+                arguments.add(new CommandLineArgument("--webdriver-selenium-grid-hub=${webdriver-selenium-grid-hub}",
+                        "webdriver-selenium-grid-hub", getWebdriverSeleniumGridHub()));
             }
         }
 
+        for (CommandLineArgument cla : arguments) {
+            cla.apply(cmd, args);
+        }
     }
 
     @Override
