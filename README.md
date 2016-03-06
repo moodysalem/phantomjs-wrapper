@@ -9,7 +9,3 @@ Execute the PhantomJS script stored in the InputStream
 ##### PhantomJS#render(InputStream html, PaperSize paperSize, ViewportDimensions dimensions, Margin margin, BannerInfo headerInfo, BannerInfo footerInfo, RenderFormat renderFormat)
 
 Use an included script to render the html in the InputStream using PhantomJS
-
-## TODO
-
-* Represent headers and footers in Java in such a way that can be serialized to a PhantomJS script (slated for v1.2)
