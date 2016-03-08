@@ -22,7 +22,7 @@ import java.util.zip.ZipInputStream;
 public class PhantomJS {
     private static final Logger LOG = Logger.getLogger(PhantomJS.class.getName());
     private static final Path TEMP_DIR = Paths.get(System.getProperty("java.io.tmpdir", "~")).resolve("java-phantomjs")
-        .resolve(Long.toString(System.currentTimeMillis()));
+            .resolve(Long.toString(System.currentTimeMillis()));
     private static final Path TEMP_SCRIPT_DIR = TEMP_DIR.resolve("scripts");
     private static final Path TEMP_SOURCE_DIR = TEMP_DIR.resolve("source");
     private static final Path TEMP_RENDER_DIR = TEMP_DIR.resolve("output");
@@ -171,7 +171,7 @@ public class PhantomJS {
 
     private static final AtomicLong RENDER_NUMBER = new AtomicLong(0);
 
-    private static synchronized long getRenderNumber() {
+    private static synchronized long getAndIncrementNumber() {
         return RENDER_NUMBER.incrementAndGet();
     }
 
@@ -236,7 +236,7 @@ public class PhantomJS {
         Files.createDirectories(TEMP_SOURCE_DIR);
         Files.createDirectories(TEMP_RENDER_DIR);
 
-        final long renderNumber = getRenderNumber();
+        final long renderNumber = getAndIncrementNumber();
 
         // create a source file for the source html input stream
         Path sourcePath = TEMP_SOURCE_DIR.resolve("source-" + renderNumber);
@@ -254,33 +254,45 @@ public class PhantomJS {
         Path renderPath = TEMP_RENDER_DIR.resolve(String.format("target-%s.%s", renderNumber, renderFormat.name().toLowerCase()));
 
         int renderExitCode = exec(renderScript,
-            new CommandLineArgument(paperSize.getWidth()), new CommandLineArgument(paperSize.getHeight()),
-            new CommandLineArgument(dimensions.getWidth()), new CommandLineArgument(dimensions.getHeight()),
-            new CommandLineArgument(margin.getTop()), new CommandLineArgument(margin.getRight()),
-            new CommandLineArgument(margin.getBottom()), new CommandLineArgument(margin.getLeft()),
-            new CommandLineArgument(headerInfo.getHeight()), new CommandLineArgument("${headerFunctionFile}", "headerFunctionFile", headerFunctionPath.toFile()),
-            new CommandLineArgument(footerInfo.getHeight()), new CommandLineArgument("${footerFunctionFile}", "footerFunctionFile", footerFunctionPath.toFile()),
-            new CommandLineArgument(OperatingSystem.get().name()),
-            new CommandLineArgument("${sourcePath}", "sourcePath", sourcePath.toFile()),
-            new CommandLineArgument("${renderPath}", "renderPath", renderPath.toFile())
+                new CommandLineArgument(paperSize.getWidth()), new CommandLineArgument(paperSize.getHeight()),
+                new CommandLineArgument(dimensions.getWidth()), new CommandLineArgument(dimensions.getHeight()),
+                new CommandLineArgument(margin.getTop()), new CommandLineArgument(margin.getRight()),
+                new CommandLineArgument(margin.getBottom()), new CommandLineArgument(margin.getLeft()),
+                new CommandLineArgument(headerInfo.getHeight()), new CommandLineArgument("${headerFunctionFile}", "headerFunctionFile", headerFunctionPath.toFile()),
+                new CommandLineArgument(footerInfo.getHeight()), new CommandLineArgument("${footerFunctionFile}", "footerFunctionFile", footerFunctionPath.toFile()),
+                new CommandLineArgument(OperatingSystem.get().name()),
+                new CommandLineArgument("${sourcePath}", "sourcePath", sourcePath.toFile()),
+                new CommandLineArgument("${renderPath}", "renderPath", renderPath.toFile())
         );
 
-        switch (renderExitCode) {
-            case 0:
-                return new FileInputStream(renderPath.toFile());
-            case 1:
-                throw new RenderException("Failed to read source html file from input stream");
-            case 2:
-                throw new RenderException("Failed to set zoom on document body");
-            case 3:
-                throw new RenderException("Failed to render pdf to output");
-            case 4:
-                throw new RenderException("Failed to read header function");
-            case 5:
-                throw new RenderException("Failed to read footer function");
-            default:
-                throw new RenderException("Render script failed for an unknown reason");
+        Files.deleteIfExists(sourcePath);
+        Files.deleteIfExists(headerFunctionPath);
+        Files.deleteIfExists(footerFunctionPath);
+
+        if (renderExitCode == 0) {
+            return new DeleteOnCloseFileInputStream(renderPath.toFile());
         }
+
+        String error = "Render script failed for an unknown reason.";
+        switch (renderExitCode) {
+            case 1:
+                error = "Failed to read source html file from input stream";
+                break;
+            case 2:
+                error = "Failed to set zoom on document body";
+                break;
+            case 3:
+                error = "Failed to render pdf to output";
+                break;
+            case 4:
+                error = "Failed to read header function";
+                break;
+            case 5:
+                error = "Failed to read footer function";
+                break;
+        }
+
+        throw new RenderException(error);
     }
 
 
@@ -333,35 +345,32 @@ public class PhantomJS {
             throw new IllegalArgumentException("Script is a required argument");
         }
 
-        // load the script into memory
-        byte[] is = toByteArray(script);
-        // calculate a hash of the script to use as a filename
-        String fname = bytesToHex(md.digest(is)).substring(0, 10);
-        Path scriptPath = TEMP_SCRIPT_DIR.resolve(fname);
+        // the path where the script will be copied to
+        long incrementingNumber = getAndIncrementNumber();
+        Path scriptPath = TEMP_SCRIPT_DIR.resolve("script-" + incrementingNumber);
 
         // create the parent directory
         Files.createDirectories(TEMP_SCRIPT_DIR);
 
-        // copy the byte array to the file
-        try (FileOutputStream fos = new FileOutputStream(scriptPath.toFile())) {
-            fos.write(is);
-        }
+        // copy the script to the path
+        Files.copy(script, scriptPath);
 
+        // start building the phantomjs binary call
         CommandLine cmd = new CommandLine(PHANTOM_JS_BINARY);
         Map<String, Object> args = new HashMap<>();
         cmd.setSubstitutionMap(args);
 
-        // options first
+        // add options to the phantomjs call
         if (options != null) {
             options.apply(cmd, args);
         }
 
         // then script
-        args.put("script", scriptPath.toFile());
-        cmd.addArgument("${script}");
+        args.put("_script_path", scriptPath.toFile());
+        cmd.addArgument("${_script_path}");
 
-        // then script arguments
-        if (arguments != null && arguments.length > 0) {
+        // then any additional arguments
+        if (arguments != null) {
             for (CommandLineArgument arg : arguments) {
                 arg.apply(cmd, args);
             }
@@ -370,7 +379,12 @@ public class PhantomJS {
         LOG.log(Level.INFO, String.format("Running command: %s", cmd.toString()));
         DefaultExecutor de = new DefaultExecutor();
         de.setStreamHandler(new PumpStreamHandler(STDOUT_LOGGER, STDERR_LOGGER));
-        return de.execute(cmd);
+        int code = de.execute(cmd);
+
+        // remove the script after running it
+        Files.deleteIfExists(scriptPath);
+
+        return code;
     }
 
     /**
