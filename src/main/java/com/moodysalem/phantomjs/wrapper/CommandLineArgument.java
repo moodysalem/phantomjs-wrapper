@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Used to pass arguments to PhantomJS
+ * Used to pass arguments to PhantomJS executable
  */
 public class CommandLineArgument {
     private String template;

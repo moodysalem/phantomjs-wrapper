@@ -1,5 +1,9 @@
 package com.moodysalem.phantomjs.wrapper;
 
+/**
+ * Defines information for a header or a footer, including the JavaScript generator function that takes a pageNum and
+ * numPages and returns HTML for the page header or footer
+ */
 public class BannerInfo {
     public static final BannerInfo EMPTY = new BannerInfo(0, SizeUnit.px, "function (pageNum, numPages) { return ''; }");
 
@@ -8,9 +12,6 @@ public class BannerInfo {
     private final String generatorFunction;
 
     /**
-     * Defines information for a header or a footer, including the JavaScript generator function that takes a pageNum and
-     * numPages and returns HTML for the page header or footer
-     *
      * @param height            of the header or footer
      * @param heightUnit        unit of the height in previous parameter
      * @param generatorFunction string containing JavaScript function with signature: String function(int pageNum, int numPages)

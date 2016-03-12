@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * PhantomJS options passed to the binary before any scripts or arguments
+ */
 public class PhantomJSOptions {
     public File getLocalStoragePath() {
         return localStoragePath;
@@ -241,7 +244,7 @@ public class PhantomJSOptions {
 
         if (getIgnoreSslErrors() != null) {
             arguments.add(new CommandLineArgument("--ignore-ssl-errors=${ignore-ssl-errors}", "ignore-ssl-errors",
-                    getIgnoreSslErrors()));
+                getIgnoreSslErrors()));
         }
 
         if (getLoadImages() != null) {
@@ -250,29 +253,29 @@ public class PhantomJSOptions {
 
         if (getLocalStoragePath() != null) {
             arguments.add(new CommandLineArgument("--local-storage-path=${local-storage-path}", "local-storage-path",
-                    getLocalStoragePath()));
+                getLocalStoragePath()));
         }
 
         if (getLocalToRemoteUrlAccess() != null) {
             arguments.add(new CommandLineArgument("--local-to-remote-url-access=${local-remote-url-access}", "local-remote-url-access",
-                    getLocalToRemoteUrlAccess()));
+                getLocalToRemoteUrlAccess()));
         }
 
         if (getMaxDiskCacheSize() != null) {
             arguments.add(new CommandLineArgument("--max-disk-cache-size=${max-disk-cache-size}", "max-disk-cache-size",
-                    getMaxDiskCacheSize()));
+                getMaxDiskCacheSize()));
         }
         if (getOutputEncoding() != null) {
             arguments.add(new CommandLineArgument("--output-encoding=${output-encoding}", "output-encoding",
-                    getOutputEncoding()));
+                getOutputEncoding()));
         }
         if (getRemoteDebuggerPort() != null) {
             arguments.add(new CommandLineArgument("--remote-debugger-port=${remote-debugger-port}", "remote-debugger-port",
-                    getRemoteDebuggerPort()));
+                getRemoteDebuggerPort()));
         }
         if (getRemoteDebuggerAutorun() != null) {
             arguments.add(new CommandLineArgument("--remote-debugger-autorun=${remote-debugger-autorun}", "remote-debugger-autorun",
-                    getRemoteDebuggerAutorun().name()));
+                getRemoteDebuggerAutorun().name()));
         }
 
         if (getProxy() != null) {
@@ -288,7 +291,7 @@ public class PhantomJSOptions {
 
         if (getScriptEncoding() != null) {
             arguments.add(new CommandLineArgument("--script-encoding=${script-encoding}", "script-encoding",
-                    getScriptEncoding()));
+                getScriptEncoding()));
         }
         if (getSslProtocol() != null) {
             arguments.add(new CommandLineArgument("--ssl-protocol=${ssl-protocol}", "ssl-protocol", getSslProtocol().name()));
@@ -296,7 +299,7 @@ public class PhantomJSOptions {
 
         if (getSslCertificatesPath() != null) {
             arguments.add(new CommandLineArgument("--ssl-certificates-path=${ssl-cert-path}", "ssl-cert-path",
-                    getSslCertificatesPath()));
+                getSslCertificatesPath()));
         }
         if (getWebSecurity() != null) {
             arguments.add(new CommandLineArgument("--web-security=${web-security}", "web-security", getWebSecurity()));
@@ -306,7 +309,7 @@ public class PhantomJSOptions {
             arguments.add(new CommandLineArgument("--webdriver"));
             if (getWebdriverSeleniumGridHub() != null) {
                 arguments.add(new CommandLineArgument("--webdriver-selenium-grid-hub=${webdriver-selenium-grid-hub}",
-                        "webdriver-selenium-grid-hub", getWebdriverSeleniumGridHub()));
+                    "webdriver-selenium-grid-hub", getWebdriverSeleniumGridHub()));
             }
         }
 

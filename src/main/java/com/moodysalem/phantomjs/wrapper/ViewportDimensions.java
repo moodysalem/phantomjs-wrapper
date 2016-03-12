@@ -1,5 +1,8 @@
 package com.moodysalem.phantomjs.wrapper;
 
+/**
+ * Browser viewport dimensions used in rendering the page
+ */
 public class ViewportDimensions {
     private final int width;
     private final int height;

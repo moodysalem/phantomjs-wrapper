@@ -6,6 +6,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 
+/**
+ * This input stream deletes the file after closing. This is used to deliver the result of a render call so that
+ * files are not left on disk after usage.
+ */
 public class DeleteOnCloseFileInputStream extends FileInputStream {
     private File file;
 
