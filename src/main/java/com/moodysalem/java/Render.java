@@ -19,7 +19,7 @@ public class Render {
     public static void main(String[] args) {
         try (InputStream html = Files.newInputStream(Paths.get(args[0]))) {
             try (InputStream pdf = PhantomJS.render(html, PaperSize.Letter, ViewportDimensions.VIEW_1280_1024, Margin.ZERO,
-                BannerInfo.EMPTY, BannerInfo.EMPTY, RenderFormat.PDF)) {
+                BannerInfo.EMPTY, BannerInfo.EMPTY, RenderFormat.PDF, 10000L, 100L)) {
                 Path dest = Paths.get(args[1]);
                 Files.deleteIfExists(dest);
                 Files.copy(pdf, dest);

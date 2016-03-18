@@ -22,7 +22,7 @@ import java.util.zip.ZipInputStream;
 public class PhantomJS {
     private static final Logger LOG = Logger.getLogger(PhantomJS.class.getName());
     private static final Path TEMP_DIR = Paths.get(System.getProperty("java.io.tmpdir", "~")).resolve("java-phantomjs")
-            .resolve(Long.toString(System.currentTimeMillis()));
+        .resolve(Long.toString(System.currentTimeMillis()));
     private static final Path TEMP_SCRIPT_DIR = TEMP_DIR.resolve("scripts");
     private static final Path TEMP_SOURCE_DIR = TEMP_DIR.resolve("source");
     private static final Path TEMP_RENDER_DIR = TEMP_DIR.resolve("output");
@@ -204,29 +204,22 @@ public class PhantomJS {
      * @param headerInfo   how the header is generated
      * @param footerInfo   how the footer is generated
      * @param renderFormat the format to render
+     * @param jsWait       the maximum amount of time to wait for JS to finish execution in milliseconds
+     * @param jsInterval   the interval
      * @return a stream of the rendered output
      * @throws IOException     if any file operations fail
      * @throws RenderException if the render script fails for any reason
      */
     public static InputStream render(InputStream html, PaperSize paperSize, ViewportDimensions dimensions,
                                      Margin margin, BannerInfo headerInfo, BannerInfo footerInfo,
-                                     RenderFormat renderFormat) throws IOException, RenderException {
-        if (html == null || renderFormat == null || paperSize == null) {
-            throw new NullPointerException();
+                                     RenderFormat renderFormat, Long jsWait, Long jsInterval) throws IOException, RenderException {
+        if (html == null || renderFormat == null || paperSize == null || dimensions == null || margin == null ||
+            headerInfo == null || footerInfo == null || jsWait == null || jsInterval == null) {
+            throw new NullPointerException("All parameters are required");
         }
 
-        // set some defaults for parameters
-        if (dimensions == null) {
-            dimensions = ViewportDimensions.VIEW_1280_1024;
-        }
-        if (margin == null) {
-            margin = Margin.ZERO;
-        }
-        if (headerInfo == null) {
-            headerInfo = BannerInfo.EMPTY;
-        }
-        if (footerInfo == null) {
-            footerInfo = BannerInfo.EMPTY;
+        if (jsWait < 0 || jsInterval < 0 || jsInterval > jsWait || (jsInterval == 0 && jsWait > 0)) {
+            throw new IllegalArgumentException();
         }
 
         // The render script
@@ -254,15 +247,17 @@ public class PhantomJS {
         Path renderPath = TEMP_RENDER_DIR.resolve(String.format("target-%s.%s", renderNumber, renderFormat.name().toLowerCase()));
 
         int renderExitCode = exec(renderScript,
-                new CommandLineArgument(paperSize.getWidth()), new CommandLineArgument(paperSize.getHeight()),
-                new CommandLineArgument(dimensions.getWidth()), new CommandLineArgument(dimensions.getHeight()),
-                new CommandLineArgument(margin.getTop()), new CommandLineArgument(margin.getRight()),
-                new CommandLineArgument(margin.getBottom()), new CommandLineArgument(margin.getLeft()),
-                new CommandLineArgument(headerInfo.getHeight()), new CommandLineArgument("${headerFunctionFile}", "headerFunctionFile", headerFunctionPath.toFile()),
-                new CommandLineArgument(footerInfo.getHeight()), new CommandLineArgument("${footerFunctionFile}", "footerFunctionFile", footerFunctionPath.toFile()),
-                new CommandLineArgument(OperatingSystem.get().name()),
-                new CommandLineArgument("${sourcePath}", "sourcePath", sourcePath.toFile()),
-                new CommandLineArgument("${renderPath}", "renderPath", renderPath.toFile())
+            new CommandLineArgument(paperSize.getWidth()), new CommandLineArgument(paperSize.getHeight()),
+            new CommandLineArgument(dimensions.getWidth()), new CommandLineArgument(dimensions.getHeight()),
+            new CommandLineArgument(margin.getTop()), new CommandLineArgument(margin.getRight()),
+            new CommandLineArgument(margin.getBottom()), new CommandLineArgument(margin.getLeft()),
+            new CommandLineArgument(headerInfo.getHeight()), new CommandLineArgument("${headerFunctionFile}", "headerFunctionFile", headerFunctionPath.toFile()),
+            new CommandLineArgument(footerInfo.getHeight()), new CommandLineArgument("${footerFunctionFile}", "footerFunctionFile", footerFunctionPath.toFile()),
+            new CommandLineArgument(OperatingSystem.get().name()),
+            new CommandLineArgument("${sourcePath}", "sourcePath", sourcePath.toFile()),
+            new CommandLineArgument("${renderPath}", "renderPath", renderPath.toFile()),
+            new CommandLineArgument("${jsWait}", "jsWait", jsWait),
+            new CommandLineArgument("${jsInterval}", "jsInterval", jsInterval)
         );
 
         Files.deleteIfExists(sourcePath);
@@ -289,6 +284,9 @@ public class PhantomJS {
                 break;
             case 5:
                 error = "Failed to read footer function";
+                break;
+            case 6:
+                error = "JS execution did not finish within the wait time";
                 break;
         }
 
