@@ -1,9 +1,6 @@
 package com.moodysalem.phantomjs.wrapper;
 
-import org.apache.commons.exec.CommandLine;
-import org.apache.commons.exec.DefaultExecutor;
-import org.apache.commons.exec.LogOutputStream;
-import org.apache.commons.exec.PumpStreamHandler;
+import org.apache.commons.exec.*;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -218,7 +215,7 @@ public class PhantomJS {
             throw new NullPointerException("All parameters are required");
         }
 
-        if (jsWait < 0 || jsInterval < 0 || jsInterval > jsWait || (jsInterval == 0 && jsWait > 0)) {
+        if (jsWait < 0 || jsInterval < 0 || (jsWait > 0 && jsInterval > jsWait) || (jsInterval == 0 && jsWait > 0)) {
             throw new IllegalArgumentException();
         }
 
@@ -377,7 +374,13 @@ public class PhantomJS {
         LOG.log(Level.INFO, String.format("Running command: %s", cmd.toString()));
         DefaultExecutor de = new DefaultExecutor();
         de.setStreamHandler(new PumpStreamHandler(STDOUT_LOGGER, STDERR_LOGGER));
-        int code = de.execute(cmd);
+        int code;
+        try {
+            code = de.execute(cmd);
+        } catch (ExecuteException exe) {
+            code = exe.getExitValue();
+        }
+
 
         // remove the script after running it
         Files.deleteIfExists(scriptPath);

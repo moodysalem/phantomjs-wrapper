@@ -22,7 +22,7 @@ public class TestPhantomJS {
 
     @Test
     public void testRender() throws IOException, RenderException {
-        try (InputStream is = PhantomJS.render(TestPhantomJS.class.getResourceAsStream("test.html"),
+        try (InputStream is = PhantomJS.render(TestPhantomJS.class.getResourceAsStream("test-js-waiting.html"),
             PaperSize.Letter, ViewportDimensions.VIEW_1280_1024, Margin.ZERO,
             BannerInfo.EMPTY, BannerInfo.EMPTY,
             RenderFormat.PDF, 1000L, 100L)) {
@@ -30,6 +30,40 @@ public class TestPhantomJS {
             assertTrue(doc.getNumberOfPages() == 1);
         }
     }
+
+    @Test
+    public void testWithExternalCss() throws IOException, RenderException {
+        try (InputStream is = PhantomJS.render(TestPhantomJS.class.getResourceAsStream("test-with-resources.html"),
+            PaperSize.Letter, ViewportDimensions.VIEW_1280_1024, Margin.ZERO,
+            BannerInfo.EMPTY, BannerInfo.EMPTY,
+            RenderFormat.PDF, 1000L, 100L)) {
+            PDDocument doc = PDDocument.load(is);
+            assertTrue(doc.getNumberOfPages() == 1);
+        }
+    }
+
+    @Test
+    public void testRenderJsWait() throws IOException, RenderException {
+        try (InputStream is = PhantomJS.render(TestPhantomJS.class.getResourceAsStream("test-js-waiting.html"),
+            PaperSize.Letter, ViewportDimensions.VIEW_1280_1024, Margin.ZERO,
+            BannerInfo.EMPTY, BannerInfo.EMPTY,
+            RenderFormat.PDF, 1000L, 100L)) {
+            PDDocument doc = PDDocument.load(is);
+            assertTrue(doc.getNumberOfPages() == 1);
+        }
+    }
+
+    @Test(expectedExceptions = RenderException.class)
+    public void testRenderJsWaitTimeout() throws IOException, RenderException {
+        try (InputStream is = PhantomJS.render(TestPhantomJS.class.getResourceAsStream("test-js-waiting.html"),
+            PaperSize.Letter, ViewportDimensions.VIEW_1280_1024, Margin.ZERO,
+            BannerInfo.EMPTY, BannerInfo.EMPTY,
+            RenderFormat.PDF, 100L, 100L)) {
+            PDDocument doc = PDDocument.load(is);
+            assertTrue(doc.getNumberOfPages() == 1);
+        }
+    }
+
 
     @Test
     public void testFooterAndHeader() throws IOException, RenderException {

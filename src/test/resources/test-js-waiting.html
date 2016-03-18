@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+
+    <script>
+        var myBool = false;
+        setTimeout(function () {
+            myBool = true;
+        }, 550);
+        var PageRendered = function () {
+            return myBool;
+        };
+    </script>
+</head>
+<body>
+<div style="width:8.5in;height:11in;background-color: yellow;">Hello, world!</div>
+</body>
+</html>
