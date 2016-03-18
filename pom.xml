@@ -4,7 +4,7 @@
 
   <groupId>com.moodysalem</groupId>
   <artifactId>phantomjs-wrapper</artifactId>
-  <version>1.5.0</version>
+  <version>1.5.1-SNAPSHOT</version>
 
   <name>${project.groupId}:${project.artifactId}</name>
   <description>A Java wrapper around the PhantomJS binaries</description>
@@ -26,7 +26,7 @@
     <url>https://github.com/moodysalem/jaxrs-lib</url>
     <connection>scm:git:https://github.com/moodysalem/java-phantomjs-wrapper.git</connection>
     <developerConnection>scm:git:https://github.com/moodysalem/java-phantomjs-wrapper.git</developerConnection>
-    <tag>phantomjs-wrapper-1.5.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <developers>
