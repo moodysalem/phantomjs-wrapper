@@ -65,7 +65,7 @@ page.paperSize = paperSize;
 
 try {
   log('reading source file: ' + sourcePath);
-  page.content = fs.read(sourcePath);
+  page.content = fs.readFileSync(sourcePath, { encoding: 'utf-8' });
 } catch (error) {
   err('failed to read source file: ' + error);
   phantom.exit(1);
