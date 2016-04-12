@@ -1,6 +1,16 @@
 # [![Build Status](https://travis-ci.org/moodysalem/java-phantomjs-wrapper.svg?branch=master)](https://travis-ci.org/moodysalem/java-phantomjs-wrapper) [![Maven Central](https://img.shields.io/maven-central/v/com.moodysalem/phantomjs-wrapper.svg)](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22phantomjs-wrapper%22%20g%3A%22com.moodysalem%22) phantomjs-wrapper
 A Java wrapper around the PhantomJS binaries with additional support for rendering HTML from an InputStream
 
+## Install
+
+Use maven to install this module and its dependencies.
+
+    <dependency>
+      <groupId>com.moodysalem</groupId>
+      <artifactId>phantomjs-wrapper</artifactId>
+      <version>1.5.0</version>
+    </dependency>
+
 ## Public Interface
 
     /**
