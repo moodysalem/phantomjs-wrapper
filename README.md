@@ -11,6 +11,16 @@ Use maven to install this module and its dependencies.
       <version>1.5.0</version>
     </dependency>
 
+
+## JS Execution
+
+The phantomJS script bundled with this wrapper (render.js) to support the render method includes logic for waiting for JS to complete execution before attempting to render the page. A page is considered rendered under any of these conditions:
+
+* `PageRendered` is undefined
+* `PageRendered` is a boolean and equal to true
+* `PageRendered` is a function and its return value is truthy
+
+
 ## Public Interface
 
     /**
