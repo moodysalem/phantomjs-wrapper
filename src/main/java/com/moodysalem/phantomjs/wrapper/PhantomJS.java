@@ -23,15 +23,12 @@ public class PhantomJS {
     private static final Path TEMP_SCRIPT_DIR = TEMP_DIR.resolve("scripts");
     private static final Path TEMP_SOURCE_DIR = TEMP_DIR.resolve("source");
     private static final Path TEMP_RENDER_DIR = TEMP_DIR.resolve("output");
-    private static final MessageDigest md;
 
     // this will store a reference to the executable phantomjs binary after we unzip the resource
     private static File PHANTOM_JS_BINARY = null;
 
     // get a reference to the executable binary and store it in PHANTOM_JS_BINARY
     static {
-        md = getMessageDigest();
-
         String resourcePath = getZipPath();
         LOG.info("Initializing PhantomJS with resource path: " + resourcePath);
         if (resourcePath != null) {
