@@ -8,7 +8,7 @@ Use maven to install this module and its dependencies.
     <dependency>
       <groupId>com.moodysalem</groupId>
       <artifactId>phantomjs-wrapper</artifactId>
-      <version>1.5.0</version>
+      <version>see pom.xml</version>
     </dependency>
 
 
