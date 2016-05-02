@@ -21,4 +21,12 @@ public class ViewportDimensions {
     public String getHeight() {
         return Integer.toString(height);
     }
+
+    public ViewportDimensions withHeight(int height) {
+        return new ViewportDimensions(width, height);
+    }
+
+    public ViewportDimensions withWidth(int width) {
+        return new ViewportDimensions(width, height);
+    }
 }

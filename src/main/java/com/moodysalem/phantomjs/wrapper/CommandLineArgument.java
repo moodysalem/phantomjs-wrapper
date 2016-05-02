@@ -9,8 +9,8 @@ import java.util.Map;
  * Used to pass arguments to PhantomJS executable
  */
 public class CommandLineArgument {
-    private String template;
-    private Map<String, Object> keyVals;
+    private final String template;
+    private final Map<String, Object> keyVals;
 
     public CommandLineArgument(String template) {
         this(template, null);

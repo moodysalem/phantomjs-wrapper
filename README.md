@@ -24,6 +24,17 @@ The phantomJS script bundled with this wrapper (render.js) to support the render
 ## Public Interface
 
     /**
+     * Another way to call PhantomJS#render using the RenderOptions to specify all the common options
+     *
+     * @param html    to render
+     * @param options for rendering
+     * @return same as PhantomJS#render
+     * @throws IOException
+     * @throws RenderException
+     */
+    public static InputStream render(InputStream html, RenderOptions options) throws IOException, RenderException;
+
+    /**
      * Render the html in the input stream with the following properties using a script included with the wrapper
      *
      * @param html         to render

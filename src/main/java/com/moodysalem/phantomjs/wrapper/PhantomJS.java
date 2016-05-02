@@ -163,29 +163,26 @@ public class PhantomJS {
         }
     }
 
+    // we use this for generating file names that do not conflict
     private static final AtomicLong RENDER_NUMBER = new AtomicLong(0);
 
     private static synchronized long getAndIncrementNumber() {
         return RENDER_NUMBER.incrementAndGet();
     }
 
-    // used for bytesToHex
-    private final static char[] hexArray = "0123456789ABCDEF".toCharArray();
-
     /**
-     * Converts a byte array to its hexadecimal representation
+     * Another way to call PhantomJS#render using the RenderOptions to specify all the common options
      *
-     * @param bytes to convert
-     * @return hex rep
+     * @param html    to render
+     * @param options for rendering
+     * @return same as PhantomJS#render
+     * @throws IOException
+     * @throws RenderException
      */
-    private static String bytesToHex(byte[] bytes) {
-        char[] hexChars = new char[bytes.length * 2];
-        for (int j = 0; j < bytes.length; j++) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = hexArray[v >>> 4];
-            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-        }
-        return new String(hexChars);
+    public static InputStream render(InputStream html, RenderOptions options) throws IOException, RenderException {
+        return render(options.getOptions(), html, options.getPaperSize(), options.getDimensions(),
+            options.getMargin(), options.getHeaderInfo(), options.getFooterInfo(), options.getRenderFormat(),
+            options.getJsWait(), options.getJsInterval());
     }
 
     /**
@@ -204,7 +201,7 @@ public class PhantomJS {
      * @throws IOException     if any file operations fail
      * @throws RenderException if the render script fails for any reason
      */
-    public static InputStream render(InputStream html, PaperSize paperSize, ViewportDimensions dimensions,
+    public static InputStream render(PhantomJSOptions options, InputStream html, PaperSize paperSize, ViewportDimensions dimensions,
                                      Margin margin, BannerInfo headerInfo, BannerInfo footerInfo,
                                      RenderFormat renderFormat, Long jsWait, Long jsInterval) throws IOException, RenderException {
         if (html == null || renderFormat == null || paperSize == null || dimensions == null || margin == null ||
@@ -241,6 +238,7 @@ public class PhantomJS {
         Path renderPath = TEMP_RENDER_DIR.resolve(String.format("target-%s.%s", renderNumber, renderFormat.name().toLowerCase()));
 
         int renderExitCode = exec(renderScript,
+            options,
             new CommandLineArgument(paperSize.getWidth()), new CommandLineArgument(paperSize.getHeight()),
             new CommandLineArgument(dimensions.getWidth()), new CommandLineArgument(dimensions.getHeight()),
             new CommandLineArgument(margin.getTop()), new CommandLineArgument(margin.getRight()),

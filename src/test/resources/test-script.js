@@ -3,4 +3,4 @@ var system = require('system');
 
 system.stdout.writeLine('test-script.js is running');
 
-phantom.exit(0);
+phantom.exit(3);
