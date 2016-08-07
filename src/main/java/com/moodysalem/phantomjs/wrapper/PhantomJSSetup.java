@@ -17,8 +17,6 @@ import com.moodysalem.phantomjs.wrapper.beans.OperatingSystem;
 
 public class PhantomJSSetup{
 	
-	//TODO Phantom Max Reuse count
-	
 	protected final static Logger logger = Logger.getLogger(PhantomJSSetup.class.getName());
 	
 	// this will store a reference to the executable phantomjs binary after we unzip the resource
@@ -40,7 +38,7 @@ public class PhantomJSSetup{
             ext = ".exe";
         }
 
-        return String.format("bin/phantomjs%s", ext);
+        return String.format(PhantomJSConstants.PHANTOM_BINARIES_BIN, ext);
     }
 
 	/**
@@ -50,72 +48,90 @@ public class PhantomJSSetup{
      * @param resourceName name of the java resource
      */
     protected static void unzipPhantomJSbin(Path destination, String resourceName) {
-        try (InputStream fileStream = PhantomJS.class.getClassLoader().getResourceAsStream(resourceName);
-             ZipInputStream zipStream = new ZipInputStream(fileStream)) {
+    	
+    	Path absoluteResource = Paths.get(
+    			destination.toString()
+    			.concat(File.separator
+    					.concat(getZipPath(PhantomJSConstants.PHANTOM_BINARIES_PACKAGENAME)
+    							.replace(PhantomJSConstants.ZIP_EXTENSION, "")
+    							.concat(File.separator)
+    							.concat(getPhantomJSBinName()))));
+    	
+    	logger.finer("Verifying existence of PhantomJS executable at: " + absoluteResource.toString());
+    	
+        if (!Files.exists(absoluteResource)) {
+			try (InputStream fileStream = PhantomJS.class.getClassLoader().getResourceAsStream(resourceName);
+					ZipInputStream zipStream = new ZipInputStream(fileStream)) {
 
-        	logger.info("Unzipping PhantomJS to resource path: " + destination);
-        	
-            String phantomJSbin = getPhantomJSBinName();
-            if (phantomJSbin == null) {
-                throw new IllegalStateException("Unable to get phantomJS bin name.");
-            }
+				logger.info("Unzipping PhantomJS to resource path: " + destination);
 
-            // loop through zip file entries
-            ZipEntry ze;
-            while ((ze = zipStream.getNextEntry()) != null) {
-                String entryName = ze.getName();
+				String phantomJSbin = getPhantomJSBinName();
+				if (phantomJSbin == null) {
+					throw new IllegalStateException("Unable to get PhantomJS bin name.");
+				}
 
-                // only process the phantomjs bin entry
-                if (entryName.indexOf(phantomJSbin) != entryName.length() - phantomJSbin.length()) {
-                    logger.log(Level.FINE, "Skipping entry: " + entryName);
-                    continue;
-                }
+				// loop through zip file entries
+				ZipEntry ze;
+				while ((ze = zipStream.getNextEntry()) != null) {
+					String entryName = ze.getName();
 
-                Path filePath = destination.resolve(entryName);
-                logger.log(Level.INFO, String.format("Unzipping bin: %s to path: %s", entryName, filePath));
+					// only process the phantomjs bin entry
+					if (entryName.indexOf(phantomJSbin) != entryName.length() - phantomJSbin.length()) {
+						logger.log(Level.FINE, "Skipping entry: " + entryName);
+						continue;
+					}
 
-                // delete what's there
-                try {
-                    Files.deleteIfExists(filePath);
-                } catch (IOException e) {
-                    logger.log(Level.SEVERE, "Failed to delete file if exists at path: " + filePath, e);
-                }
+					Path filePath = destination.resolve(entryName);
+					logger.log(Level.INFO, String.format("Unzipping bin: %s to path: %s", entryName, filePath));
 
-                // create the parent directory
-                try {
-                    Files.createDirectories(filePath.getParent());
-                } catch (IOException e) {
-                    logger.log(Level.SEVERE, "Failed to create file path to file: " + filePath, e);
-                }
+					// delete what's there
+					try {
+						Files.deleteIfExists(filePath);
+					} catch (IOException e) {
+						logger.log(Level.SEVERE, "Failed to delete file if exists at path: " + filePath, e);
+					}
 
-                // copy input stream into file
-                try {
-                    Files.copy(zipStream, filePath);
-                } catch (IOException e) {
-                    logger.log(Level.SEVERE, "Failed to write zip entry: " + entryName, e);
-                }
+					// create the parent directory
+					try {
+						Files.createDirectories(filePath.getParent());
+					} catch (IOException e) {
+						logger.log(Level.SEVERE, "Failed to create file path to file: " + filePath, e);
+					}
 
-                PHANTOM_JS_BINARY = filePath.toFile();
-                if (!PHANTOM_JS_BINARY.canExecute()) {
-                    if (!PHANTOM_JS_BINARY.setExecutable(true)) {
-                        logger.log(Level.WARNING, "Failed to make phantom JS binary executable");
-                        PHANTOM_JS_BINARY = null;
-                    }
-                }
+					// copy input stream into file
+					try {
+						Files.copy(zipStream, filePath);
+					} catch (IOException e) {
+						logger.log(Level.SEVERE, "Failed to write zip entry: " + entryName, e);
+					}
 
-                break;
-            }
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "Failed to read zip file from resources", e);
-        }
+					PHANTOM_JS_BINARY = filePath.toFile();
+					if (!PHANTOM_JS_BINARY.canExecute()) {
+						if (!PHANTOM_JS_BINARY.setExecutable(true)) {
+							logger.log(Level.WARNING, "Failed to make PhantomJS binary executable");
+							PHANTOM_JS_BINARY = null;
+						}
+					}
+
+					break;
+				}
+			} catch (IOException e) {
+				logger.log(Level.SEVERE, "Failed to read zip file from resources", e);
+			} 
+		}
+        else {
+        	logger.fine("PhantomJS exists under resource path: " + destination);
+        	PHANTOM_JS_BINARY = absoluteResource.toFile();
+		}
     }
 	
 	/**
      * Gets the name of the resource for the zip based on the OS
+	 * @param resourceName
      *
      * @return the name of the appropriate zipped phantomjs
      */
-    protected static String getZipPath() {
+    protected static String getZipPath(String resourceName) {
         OperatingSystem.OS os = OperatingSystem.get();
         if (os == null) {
             return null;
@@ -125,19 +141,20 @@ public class PhantomJSSetup{
         
         switch (os) {
             case WINDOWS:
-                osString = "windows";
+                osString = PhantomJSConstants.PHANTOM_BINARIES_WINDOWS;
                 break;
 
             case MAC:
-                osString = "macosx";
+                osString = PhantomJSConstants.PHANTOM_BINARIES_MAC;
                 break;
 
             case UNIX:
-                osString = "linux-x86_64";
+                osString = PhantomJSConstants.PHANTOM_BINARIES_UNIX;
                 break;
         }
 
-        return String.format("com/moodysalem/phantomjs/wrapper/phantomjs-2.1.1-%s.zip", osString);
+        return String.format(resourceName
+        		.concat(PhantomJSConstants.ZIP_EXTENSION), osString);
     }
 	
 	/**
@@ -153,10 +170,4 @@ public class PhantomJSSetup{
             return null;
         }
     }
-
-	protected static final Path TEMP_DIR = Paths.get("/").resolve("java-phantomjs") //System.getProperty("java.io.tmpdir", "~")
-	.resolve(Long.toString(System.currentTimeMillis()));
-	protected static final Path TEMP_SCRIPT_DIR = TEMP_DIR.resolve("scripts");
-	protected static final Path TEMP_SOURCE_DIR = TEMP_DIR.resolve("source");
-	protected static final Path TEMP_RENDER_DIR = TEMP_DIR.resolve("output");
 }

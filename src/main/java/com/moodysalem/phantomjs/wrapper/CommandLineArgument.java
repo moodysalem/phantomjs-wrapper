@@ -25,6 +25,10 @@ public class CommandLineArgument {
         objMap.put(key, val);
         return objMap;
     }
+    
+    public static String wrapTemplateName(String templateName){
+    	return templateName = "${" + templateName + "}";
+    }
 
     public CommandLineArgument(String template, Map<String, Object> keyVals) {
         if (template == null || template.isEmpty()) {

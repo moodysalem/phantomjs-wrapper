@@ -1,6 +1,7 @@
 package com.moodysalem.java;
 
-import com.moodysalem.phantomjs.wrapper.*;
+import com.moodysalem.phantomjs.wrapper.PhantomJS;
+import com.moodysalem.phantomjs.wrapper.RenderException;
 import com.moodysalem.phantomjs.wrapper.beans.BannerInfo;
 import com.moodysalem.phantomjs.wrapper.beans.Margin;
 import com.moodysalem.phantomjs.wrapper.beans.PaperSize;
