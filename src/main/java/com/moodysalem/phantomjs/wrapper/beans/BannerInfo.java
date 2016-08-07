@@ -1,4 +1,6 @@
-package com.moodysalem.phantomjs.wrapper;
+package com.moodysalem.phantomjs.wrapper.beans;
+
+import com.moodysalem.phantomjs.wrapper.enums.SizeUnit;
 
 /**
  * Defines information for a header or a footer, including the JavaScript generator function that takes a pageNum and

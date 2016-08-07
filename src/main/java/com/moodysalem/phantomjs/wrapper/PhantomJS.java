@@ -2,6 +2,15 @@ package com.moodysalem.phantomjs.wrapper;
 
 import org.apache.commons.exec.*;
 
+import com.moodysalem.phantomjs.wrapper.beans.BannerInfo;
+import com.moodysalem.phantomjs.wrapper.beans.Margin;
+import com.moodysalem.phantomjs.wrapper.beans.OperatingSystem;
+import com.moodysalem.phantomjs.wrapper.beans.PaperSize;
+import com.moodysalem.phantomjs.wrapper.beans.PhantomJSOptions;
+import com.moodysalem.phantomjs.wrapper.beans.RenderOptions;
+import com.moodysalem.phantomjs.wrapper.beans.ViewportDimensions;
+import com.moodysalem.phantomjs.wrapper.enums.RenderFormat;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;

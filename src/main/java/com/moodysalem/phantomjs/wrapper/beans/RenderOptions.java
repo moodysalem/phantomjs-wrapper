@@ -1,4 +1,6 @@
-package com.moodysalem.phantomjs.wrapper;
+package com.moodysalem.phantomjs.wrapper.beans;
+
+import com.moodysalem.phantomjs.wrapper.enums.RenderFormat;
 
 public class RenderOptions {
     public static final RenderOptions EMPTY = new RenderOptions(null, null, null, null, null, null, null, null, null);

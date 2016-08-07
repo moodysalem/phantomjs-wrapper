@@ -1,4 +1,9 @@
 import com.moodysalem.phantomjs.wrapper.*;
+import com.moodysalem.phantomjs.wrapper.beans.BannerInfo;
+import com.moodysalem.phantomjs.wrapper.beans.PhantomJSOptions;
+import com.moodysalem.phantomjs.wrapper.beans.RenderOptions;
+import com.moodysalem.phantomjs.wrapper.enums.SizeUnit;
+
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.testng.annotations.Test;
 

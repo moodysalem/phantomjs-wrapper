@@ -1,6 +1,8 @@
-package com.moodysalem.phantomjs.wrapper;
+package com.moodysalem.phantomjs.wrapper.beans;
 
 import org.apache.commons.exec.CommandLine;
+
+import com.moodysalem.phantomjs.wrapper.CommandLineArgument;
 
 import java.io.File;
 import java.util.ArrayList;
