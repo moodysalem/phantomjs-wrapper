@@ -1,4 +1,4 @@
-package com.moodysalem.phantomjs.wrapper;
+package com.moodysalem.phantomjs.wrapper.enums;
 
 /**
  * The units supported by the phantomJS binaries
