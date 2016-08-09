@@ -34,21 +34,6 @@ public class PhantomJS{
 	// we use this for generating file names that do not conflict
 	private static final AtomicLong RENDER_NUMBER = new AtomicLong(0);
 
-	// get a reference to the executable binary and store it in PHANTOM_JS_BINARY
-	static {
-		String resourcePath = PhantomJSSetup.getZipPath(PhantomJSConstants.PHANTOM_BINARIES_RESOURCEPATH);
-
-		logger.info("Initializing PhantomJS with resource path: " + resourcePath);
-
-		//As long as we have a resource path, and that the binaries have not already been initialized, initialize them
-		if (null != resourcePath && null == PhantomJSSetup.PHANTOM_JS_BINARY) {
-			PhantomJSSetup.unzipPhantomJSbin(PhantomJSConstants.TEMP_DIR, resourcePath);
-		}
-		else{
-			logger.severe("Instantiation mechanism was unable to determine platform type for PhantomJS extraction.");
-		}
-	}
-
 	private static synchronized String getNewTransactionNumber() {
 
 		if (RENDER_NUMBER.longValue() == Long.MAX_VALUE) {
@@ -132,13 +117,13 @@ public class PhantomJS{
 				new CommandLineArgument(dimensions.getWidth()), new CommandLineArgument(dimensions.getHeight()),
 				new CommandLineArgument(margin.getTop()), new CommandLineArgument(margin.getRight()),
 				new CommandLineArgument(margin.getBottom()), new CommandLineArgument(margin.getLeft()),
-				new CommandLineArgument(headerInfo.getHeight()), new CommandLineArgument(CommandLineArgument.wrapTemplateName(PhantomJSConstants.HEADERFUNCTION_FILE), PhantomJSConstants.HEADERFUNCTION_FILE, headerFunctionPath.toFile()),
-				new CommandLineArgument(footerInfo.getHeight()), new CommandLineArgument(CommandLineArgument.wrapTemplateName(PhantomJSConstants.FOOTERFUNCTION_FILE), PhantomJSConstants.FOOTERFUNCTION_FILE, footerFunctionPath.toFile()),
+				new CommandLineArgument(headerInfo.getHeight()), new CommandLineArgument(CommandLineArgument.wrapCommandLineArgumentName(PhantomJSConstants.HEADERFUNCTION_FILE), PhantomJSConstants.HEADERFUNCTION_FILE, headerFunctionPath.toFile()),
+				new CommandLineArgument(footerInfo.getHeight()), new CommandLineArgument(CommandLineArgument.wrapCommandLineArgumentName(PhantomJSConstants.FOOTERFUNCTION_FILE), PhantomJSConstants.FOOTERFUNCTION_FILE, footerFunctionPath.toFile()),
 				new CommandLineArgument(OperatingSystem.get().name()),
-				new CommandLineArgument(CommandLineArgument.wrapTemplateName(PhantomJSConstants.SOURCEPATH_TEMPLATENAME), PhantomJSConstants.SOURCEPATH_TEMPLATENAME, sourcePath.toFile()),
-				new CommandLineArgument(CommandLineArgument.wrapTemplateName(PhantomJSConstants.RENDERPATH_TEMPLATENAME), PhantomJSConstants.RENDERPATH_TEMPLATENAME, renderPath.toFile()),
-				new CommandLineArgument(CommandLineArgument.wrapTemplateName(PhantomJSConstants.JSWAIT_TEMPLATENAME), PhantomJSConstants.JSWAIT_TEMPLATENAME, jsWait),
-				new CommandLineArgument(CommandLineArgument.wrapTemplateName(PhantomJSConstants.JSINTERVAL_TEMPLATENAME), PhantomJSConstants.JSINTERVAL_TEMPLATENAME, jsInterval)
+				new CommandLineArgument(CommandLineArgument.wrapCommandLineArgumentName(PhantomJSConstants.SOURCEPATH_TEMPLATENAME), PhantomJSConstants.SOURCEPATH_TEMPLATENAME, sourcePath.toFile()),
+				new CommandLineArgument(CommandLineArgument.wrapCommandLineArgumentName(PhantomJSConstants.RENDERPATH_TEMPLATENAME), PhantomJSConstants.RENDERPATH_TEMPLATENAME, renderPath.toFile()),
+				new CommandLineArgument(CommandLineArgument.wrapCommandLineArgumentName(PhantomJSConstants.JSWAIT_TEMPLATENAME), PhantomJSConstants.JSWAIT_TEMPLATENAME, jsWait),
+				new CommandLineArgument(CommandLineArgument.wrapCommandLineArgumentName(PhantomJSConstants.JSINTERVAL_TEMPLATENAME), PhantomJSConstants.JSINTERVAL_TEMPLATENAME, jsInterval)
 				);
 		
 		int renderExitCode = phantomJSExecutionResponse.getExitCode();

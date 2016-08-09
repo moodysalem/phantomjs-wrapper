@@ -26,7 +26,7 @@ public class CommandLineArgument {
         return objMap;
     }
     
-    public static String wrapTemplateName(String templateName){
+    public static String wrapCommandLineArgumentName(String templateName){
     	return templateName = "${" + templateName + "}";
     }
 

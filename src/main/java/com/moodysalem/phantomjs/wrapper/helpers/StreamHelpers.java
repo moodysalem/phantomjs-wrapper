@@ -4,7 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class StreamHelpers {
+public abstract class StreamHelpers {
 
 	/**
      * Read an input stream into a byte array

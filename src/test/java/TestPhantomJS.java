@@ -90,7 +90,7 @@ public class TestPhantomJS {
         try (InputStream is = PhantomJS.render(TestPhantomJS.class.getResourceAsStream("test.html"), RenderOptions.DEFAULT.withHeaderInfo(header).withFooterInfo(footer))) {
             PDDocument doc = PDDocument.load(is);
             doc.close();
-            assertTrue(doc.getNumberOfPages() == 2); //Only 1 page is generated on Windows. This seems platform dependent.
+            assertTrue(doc.getNumberOfPages() == 2);
         }
     }
     

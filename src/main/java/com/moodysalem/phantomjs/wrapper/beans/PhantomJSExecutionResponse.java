@@ -7,7 +7,6 @@ public class PhantomJSExecutionResponse {
 	private String stdErr;
 	
 	public PhantomJSExecutionResponse(int exitCode, String stdOut, String stdErr) {
-		super();
 		this.exitCode = exitCode;
 		this.stdOut = stdOut;
 		this.stdErr = stdErr;

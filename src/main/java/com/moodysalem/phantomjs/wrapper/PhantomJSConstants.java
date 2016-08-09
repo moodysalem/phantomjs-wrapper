@@ -2,6 +2,7 @@ package com.moodysalem.phantomjs.wrapper;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.UUID;
 
 public class PhantomJSConstants {
 	
@@ -20,9 +21,11 @@ public class PhantomJSConstants {
 	protected static final Path TEMP_DIR = Paths.get(System.getProperty("java.io.tmpdir", "/tmp"))
 			.resolve(TEMP_FOLDER_NAME);
 	
-	protected static final Path TEMP_SCRIPT_DIR = TEMP_DIR.resolve("scripts");
-	protected static final Path TEMP_SOURCE_DIR = TEMP_DIR.resolve("source");
-	protected static final Path TEMP_RENDER_DIR = TEMP_DIR.resolve("output");
+	protected static final String JVM_UUID = UUID.randomUUID().toString();
+	
+	protected static final Path TEMP_SCRIPT_DIR = TEMP_DIR.resolve("scripts-" + JVM_UUID);
+	protected static final Path TEMP_SOURCE_DIR = TEMP_DIR.resolve("source-" + JVM_UUID);
+	protected static final Path TEMP_RENDER_DIR = TEMP_DIR.resolve("output-" + JVM_UUID);
 	
 	protected static final String HEADER_PREFIX = "header-";
 	protected static final String FOOTER_PREFIX = "footer-";
@@ -38,4 +41,6 @@ public class PhantomJSConstants {
 	
 	protected static final String JSWAIT_TEMPLATENAME = "jsWait";
 	protected static final String JSINTERVAL_TEMPLATENAME = "jsInterval";
+	
+	protected static final String SHUTDOWN_HOOK_THREAD_NAME = "PhantomJSSetupShutDownHook";
 }
