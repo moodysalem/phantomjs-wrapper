@@ -15,23 +15,23 @@ import java.util.zip.ZipInputStream;
 
 import com.moodysalem.phantomjs.wrapper.beans.OperatingSystem;
 
-public final class PhantomJSSetup{
+public class PhantomJSSetup{
 
 	protected final static Logger logger = Logger.getLogger(PhantomJSSetup.class.getName());
 
 	// this will store a reference to the executable phantomjs binary after we unzip the resource
-	protected static File PHANTOM_JS_BINARY = null;
+	protected final static File PHANTOM_JS_BINARY = initializeBinaries();
 
 	// get a reference to the executable binary and store it in PHANTOM_JS_BINARY
-	static {
+	private static File initializeBinaries() throws IllegalStateException {
 		final String resourcePath = getZipPath(PhantomJSConstants.PHANTOM_BINARIES_RESOURCEPATH);
 
 		logger.info("Initializing PhantomJS with resource path: " + resourcePath);
 
 		//As long as we have a resource path, and that the binaries have not already been initialized, initialize them
 		if (null != resourcePath && null == PHANTOM_JS_BINARY) {
-			unzipPhantomJSbin(PhantomJSConstants.TEMP_DIR, resourcePath);
-			initializeShutDownHook();
+                        initializeShutDownHook(); 
+			return unzipPhantomJSbin(PhantomJSConstants.TEMP_DIR, resourcePath);
 		}
 		else{
 			logger.severe("Instantiation mechanism was unable to determine platform type for PhantomJS extraction.");
@@ -63,7 +63,7 @@ public final class PhantomJSSetup{
 	 * @param destination  for zip contents
 	 * @param resourceName name of the java resource
 	 */
-	private static void unzipPhantomJSbin(Path destination, String resourceName) {
+	private static File unzipPhantomJSbin(Path destination, String resourceName) throws IllegalStateException {
 
 		Path absoluteResource = Paths.get(
 				destination.toString()
@@ -76,7 +76,7 @@ public final class PhantomJSSetup{
 		logger.finer("Verifying existence of PhantomJS executable at: " + absoluteResource.toString());
 
 		if (!Files.exists(absoluteResource)) {
-			try (InputStream fileStream = PhantomJS.class.getClassLoader().getResourceAsStream(resourceName);
+			try (InputStream fileStream = PhantomJSSetup.class.getClassLoader().getResourceAsStream(resourceName);
 					ZipInputStream zipStream = new ZipInputStream(fileStream)) {
 
 				logger.info("Unzipping PhantomJS to resource path: " + destination);
@@ -104,40 +104,39 @@ public final class PhantomJSSetup{
 					try {
 						Files.deleteIfExists(filePath);
 					} catch (IOException e) {
-						logger.log(Level.SEVERE, "Failed to delete file if exists at path: " + filePath, e);
+						throw new IllegalStateException("Failed to delete file if exists at path: " + filePath, e);
 					}
 
 					// create the parent directory
 					try {
 						Files.createDirectories(filePath.getParent());
 					} catch (IOException e) {
-						logger.log(Level.SEVERE, "Failed to create file path to file: " + filePath, e);
+						throw new IllegalStateException("Failed to create file path to file: " + filePath, e);
 					}
 
 					// copy input stream into file
 					try {
 						Files.copy(zipStream, filePath);
 					} catch (IOException e) {
-						logger.log(Level.SEVERE, "Failed to write zip entry: " + entryName, e);
+						throw new IllegalStateException("Failed to write zip entry: " + entryName, e);
 					}
 
-					PHANTOM_JS_BINARY = filePath.toFile();
-					if (!PHANTOM_JS_BINARY.canExecute()) {
-						if (!PHANTOM_JS_BINARY.setExecutable(true)) {
-							logger.log(Level.WARNING, "Failed to make PhantomJS binary executable");
-							PHANTOM_JS_BINARY = null;
+					File binary = filePath.toFile();
+					if (!binary.canExecute()) {
+						if (!binary.setExecutable(true)) {
+							throw new IllegalStateException("PhantomJSSetup failed to make PhantomJS binary executable");
 						}
 					}
 
-					break;
+					return binary;
 				}
 			} catch (IOException e) {
-				logger.log(Level.SEVERE, "Failed to read zip file from resources", e);
+				throw new IllegalStateException("Failed to read zip file from resources", e);
 			} 
 		}
 		else {
 			logger.fine("PhantomJS exists under resource path: " + destination);
-			PHANTOM_JS_BINARY = absoluteResource.toFile();
+			return absoluteResource.toFile();
 		}
 	}
 
