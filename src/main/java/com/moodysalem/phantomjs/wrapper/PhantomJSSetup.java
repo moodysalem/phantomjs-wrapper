@@ -30,11 +30,11 @@ public class PhantomJSSetup{
 
 		//As long as we have a resource path, and that the binaries have not already been initialized, initialize them
 		if (null != resourcePath && null == PHANTOM_JS_BINARY) {
-                        initializeShutDownHook(); 
+            initializeShutDownHook(); 
 			return unzipPhantomJSbin(PhantomJSConstants.TEMP_DIR, resourcePath);
 		}
 		else{
-			logger.severe("Instantiation mechanism was unable to determine platform type for PhantomJS extraction.");
+			throw new IllegalStateException("Instantiation mechanism was unable to determine platform type for PhantomJS extraction.");
 		}
 	}
 
@@ -76,6 +76,9 @@ public class PhantomJSSetup{
 		logger.finer("Verifying existence of PhantomJS executable at: " + absoluteResource.toString());
 
 		if (!Files.exists(absoluteResource)) {
+			
+			File binary = null;
+			
 			try (InputStream fileStream = PhantomJSSetup.class.getClassLoader().getResourceAsStream(resourceName);
 					ZipInputStream zipStream = new ZipInputStream(fileStream)) {
 
@@ -121,18 +124,19 @@ public class PhantomJSSetup{
 						throw new IllegalStateException("Failed to write zip entry: " + entryName, e);
 					}
 
-					File binary = filePath.toFile();
+					binary = filePath.toFile();
+					
 					if (!binary.canExecute()) {
 						if (!binary.setExecutable(true)) {
 							throw new IllegalStateException("PhantomJSSetup failed to make PhantomJS binary executable");
 						}
 					}
-
-					return binary;
 				}
 			} catch (IOException e) {
 				throw new IllegalStateException("Failed to read zip file from resources", e);
 			} 
+			
+			return binary;
 		}
 		else {
 			logger.fine("PhantomJS exists under resource path: " + destination);
