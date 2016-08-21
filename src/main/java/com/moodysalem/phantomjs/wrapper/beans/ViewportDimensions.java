@@ -1,4 +1,4 @@
-package com.moodysalem.phantomjs.wrapper;
+package com.moodysalem.phantomjs.wrapper.beans;
 
 /**
  * Browser viewport dimensions used in rendering the page

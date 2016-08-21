@@ -44,12 +44,12 @@ var done = function () {
 var setZoom = function () {
   if (operatingSystem !== "WINDOWS") {
     try {
-      log('setting zoom on html to 0.75');
+      log('Setting zoom on HTML to 0.75');
       page.evaluate(function () {
         document.body.style.zoom = 0.75;
       });
     } catch (error) {
-      err('failed to set zoom on html file: ', error);
+      err('Failed to set zoom on HTML file: ', error);
       phantom.exit(2);
     }
   }
@@ -61,10 +61,10 @@ var renderPage = function () {
 
   // render the page
   try {
-    log('rendering to target path: ' + targetPath);
+    log('Rendering PDF to target path: ' + targetPath);
     page.render(targetPath);
   } catch (error) {
-    err('failed to render pdf: ' + error);
+    err('Failed to render PDF: ' + error);
     phantom.exit(3);
   }
 
@@ -81,14 +81,14 @@ var getFn = function (str) {
 try {
   var headerFunction = getFn(fs.read(headerFunctionFile));
 } catch (error) {
-  err('failed to read header function: ' + error);
+  err('Failed to read header function: ' + error);
   phantom.exit(4);
 }
 
 try {
   var footerFunction = getFn(fs.read(footerFunctionFile));
 } catch (error) {
-  err('failed to read footer function: ' + error);
+  err('Failed to read footer function: ' + error);
   phantom.exit(5);
 }
 
@@ -117,7 +117,7 @@ page.paperSize = paperSize;
 
 // log all the resource requests
 page.onResourceRequested = function (requestData, request) {
-  log('loading url: ' + requestData[ 'url' ]);
+  log('Loading URL: ' + requestData[ 'url' ]);
 };
 
 var waited = 0;
@@ -126,10 +126,10 @@ var renderIfDone = function renderIfDone() {
     renderPage();
   } else {
     if (waited > jsWait) {
-      err('timed out on javascript execution');
+      err('Timed out on JavaScript execution');
       phantom.exit(6);
     }
-    log('waiting an additional ' + jsInterval);
+    log('Waiting an additional ' + jsInterval);
     waited += jsInterval;
     setTimeout(renderIfDone, jsInterval);
   }
@@ -140,9 +140,9 @@ var renderIfDone = function renderIfDone() {
 page.onLoadFinished = renderIfDone;
 
 try {
-  log('reading source file: ' + sourcePath);
+  log('Reading source file: ' + sourcePath);
   page.content = fs.read(sourcePath, { encoding: 'utf-8' });
 } catch (error) {
-  err('failed to read source file: ' + error);
+  err('Failed to read source file: ' + error);
   phantom.exit(1);
 }

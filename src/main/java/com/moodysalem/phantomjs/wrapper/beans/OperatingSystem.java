@@ -1,9 +1,9 @@
-package com.moodysalem.phantomjs.wrapper;
+package com.moodysalem.phantomjs.wrapper.beans;
 
 /**
  * Used to detect the hosting operating system which is used to determine which binaries should be used
  */
-class OperatingSystem {
+public class OperatingSystem {
     public enum OS {
         WINDOWS,
         MAC,

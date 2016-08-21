@@ -1,4 +1,4 @@
-package com.moodysalem.phantomjs.wrapper;
+package com.moodysalem.phantomjs.wrapper.enums;
 
 /**
  * The render formats supported by the PhantomJS binaries

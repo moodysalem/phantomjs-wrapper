@@ -1,4 +1,6 @@
-package com.moodysalem.phantomjs.wrapper;
+package com.moodysalem.phantomjs.wrapper.beans;
+
+import com.moodysalem.phantomjs.wrapper.enums.SizeUnit;
 
 /**
  * Defines the size of paper for printed formats such as PDF
