@@ -124,7 +124,7 @@ public class TestPhantomJS {
                                 Margin.ZERO, BannerInfo.EMPTY, BannerInfo.EMPTY, RenderFormat.PDF, 10000L, 100L)
                 ) {
                     assert pdf != null;
-                    LOG.log(Level.INFO, "Execution completed: " + threadName);
+                    LOG.log(Level.INFO, "Thread finished rendering: " + threadName);
                 } catch (Exception e) {
                     this.interrupt();
                     e.printStackTrace();

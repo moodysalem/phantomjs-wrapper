@@ -9,6 +9,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
+  <name>PhantomJS Exec Script</name>
   <artifactId>phantomjs-wrapper-exec</artifactId>
 
   <properties>

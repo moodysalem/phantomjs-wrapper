@@ -13,7 +13,7 @@
     <module>exec</module>
   </modules>
 
-  <name>${project.groupId}:${project.artifactId}</name>
+  <name>PhantomJS Wrapper Parent</name>
   <description>A Java wrapper around the PhantomJS binaries</description>
   <url>https://github.com/moodysalem/java-phantomjs-wrapper</url>
 
