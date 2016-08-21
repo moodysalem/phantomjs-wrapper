@@ -10,11 +10,6 @@
   <name>PhantomJS Exec Script</name>
   <artifactId>phantomjs-wrapper-exec</artifactId>
 
-  <properties>
-    <maven.deploy.skip>true</maven.deploy.skip>
-    <maven.javadoc.skip>true</maven.javadoc.skip>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>com.moodysalem</groupId>
@@ -32,8 +27,8 @@
         <configuration>
           <mainClass>com.moodysalem.java.Render</mainClass>
           <arguments>
-            <argument>src/test/resources/test.html</argument>
-            <argument>target/test.pdf</argument>
+            <argument>~/test.html</argument>
+            <argument>~/test-out.pdf</argument>
           </arguments>
         </configuration>
       </plugin>
