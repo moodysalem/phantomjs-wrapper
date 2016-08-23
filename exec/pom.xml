@@ -3,7 +3,7 @@
   <parent>
     <artifactId>phantomjs-wrapper-parent</artifactId>
     <groupId>com.moodysalem</groupId>
-    <version>2.1.4-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
