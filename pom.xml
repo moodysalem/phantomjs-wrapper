@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.moodysalem</groupId>
   <artifactId>phantomjs-wrapper-parent</artifactId>
-  <version>3.0.0-SNAPSHOT</version>
+  <version>3.0.0</version>
   <packaging>pom</packaging>
 
   <modules>
@@ -36,7 +35,7 @@
     <url>https://github.com/moodysalem/jaxrs-lib</url>
     <connection>scm:git:https://github.com/moodysalem/java-phantomjs-wrapper.git</connection>
     <developerConnection>scm:git:https://github.com/moodysalem/java-phantomjs-wrapper.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>phantomjs-wrapper-parent-3.0.0</tag>
   </scm>
 
   <developers>
