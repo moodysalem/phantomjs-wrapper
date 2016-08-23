@@ -11,10 +11,31 @@ Use maven to install this module and its dependencies.
       <version>see pom.xml</version>
     </dependency>
 
+## 3.0 Optional binary dependencies
+
+In 3.0, all the phantom JS binaries are included in separate modules declared as optional dependencies. If you are building a cross platform app, you will need to include all 3. Otherwise, you can include only the optional dependency for the target Operating System.
+
+      <dependency>
+        <groupId>com.moodysalem</groupId>
+        <artifactId>phantomjs-wrapper-windows-binary</artifactId>
+        <version>see pom.xml</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.moodysalem</groupId>
+        <artifactId>phantomjs-wrapper-linux-binary</artifactId>
+        <version>see pom.xml</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.moodysalem</groupId>
+        <artifactId>phantomjs-wrapper-macosx-binary</artifactId>
+        <version>see pom.xml</version>
+      </dependency>
 
 ## JS Execution
 
-The phantomJS script bundled with this wrapper (render.js) to support the render method includes logic for waiting for JS to complete execution before attempting to render the page. A page is considered rendered under any of these conditions:
+The phantomJS script bundled with this wrapper (render.js) to support the public render method described below includes logic for waiting for JS to complete execution before attempting to render the page. A page is considered rendered under any of these conditions:
 
 * `PageRendered` is undefined
 * `PageRendered` is a boolean and equal to true
@@ -64,4 +85,4 @@ The phantomJS script bundled with this wrapper (render.js) to support the render
      * @return the exit code of the script
      * @throws IOException if cmd execution fails
      */
-    public static int exec(InputStream script, PhantomJSOptions options, CommandLineArgument... arguments) throws IOException;
+    public static PhantomJSExecutionResponse exec(InputStream script, PhantomJSOptions options, CommandLineArgument... arguments) throws IOException;
