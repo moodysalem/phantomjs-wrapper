@@ -129,7 +129,7 @@ var renderIfDone = function renderIfDone() {
       err('Timed out on JavaScript execution');
       phantom.exit(6);
     }
-    log('Waiting an additional ' + jsInterval);
+    log('Waiting an additional ' + jsInterval + 'ms');
     waited += jsInterval;
     setTimeout(renderIfDone, jsInterval);
   }

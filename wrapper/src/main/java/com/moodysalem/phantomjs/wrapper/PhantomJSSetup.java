@@ -15,10 +15,10 @@ import java.util.zip.ZipInputStream;
 
 class PhantomJSSetup {
 
-    private final static Logger LOG = Logger.getLogger(PhantomJSSetup.class.getName());
+    private static final Logger LOG = Logger.getLogger(PhantomJSSetup.class.getName());
 
     // this will store a reference to the executable phantomjs binary after we unzip the resource
-    final static File PHANTOM_JS_BINARY = initializeBinaries();
+    private static final File PHANTOM_JS_BINARY = initializeBinaries();
 
     // get a reference to the executable binary and store it in PHANTOM_JS_BINARY
     private static File initializeBinaries() throws IllegalStateException {
@@ -26,13 +26,21 @@ class PhantomJSSetup {
 
         LOG.info("Initializing PhantomJS with resource path: " + resourcePath);
 
-        //As long as we have a resource path, and that the binaries have not already been initialized, initialize them
+        // As long as we have a resource path, and that the binaries have not already been initialized, initialize them
         if (null != resourcePath && null == PHANTOM_JS_BINARY) {
             initializeShutDownHook();
             return unzipPhantomJSbin(PhantomJSConstants.TEMP_DIR, resourcePath);
         } else {
             throw new IllegalStateException("Instantiation mechanism was unable to determine platform type for PhantomJS extraction.");
         }
+    }
+
+    static boolean isInitialized() {
+        return PHANTOM_JS_BINARY != null && PHANTOM_JS_BINARY.exists() && PHANTOM_JS_BINARY.canExecute();
+    }
+
+    static File getPhantomJsBinary() {
+        return PHANTOM_JS_BINARY;
     }
 
     /**
@@ -62,11 +70,11 @@ class PhantomJSSetup {
      */
     private static File unzipPhantomJSbin(final Path destination, final String resourceName) throws IllegalStateException {
         final Path absoluteResource = Paths.get(
-                destination.toString()
-                        .concat(File.separator.concat(getZipPath(PhantomJSConstants.PHANTOM_BINARIES_PACKAGENAME)
-                                .replace(PhantomJSConstants.ZIP_EXTENSION, "")
-                                .concat(File.separator)
-                                .concat(getPhantomJSBinName()))));
+            destination.toString().concat(File.separator.concat(getZipPath(PhantomJSConstants.PHANTOM_BINARIES_PACKAGENAME)
+                .replace(PhantomJSConstants.ZIP_EXTENSION, "")
+                .concat(File.separator)
+                .concat(getPhantomJSBinName())))
+        );
 
         LOG.finer("Verifying existence of PhantomJS executable at: " + absoluteResource.toString());
 
@@ -174,10 +182,9 @@ class PhantomJSSetup {
      * This hook needs to be added during initialization of the class.
      */
     private static void initializeShutDownHook() {
+        final Runtime runtime = Runtime.getRuntime();
 
-        Runtime runtime = Runtime.getRuntime();
-
-        Thread shutdownThread = new Thread(PhantomJSConstants.SHUTDOWN_HOOK_THREAD_NAME) {
+        final Thread shutdownThread = new Thread(PhantomJSConstants.SHUTDOWN_HOOK_THREAD_NAME) {
             public void run() {
                 try {
                     Files.delete(PhantomJSConstants.TEMP_SOURCE_DIR);

@@ -1,5 +1,9 @@
 package com.moodysalem.phantomjs.wrapper;
 
+import com.moodysalem.phantomjs.wrapper.beans.*;
+import com.moodysalem.phantomjs.wrapper.enums.RenderFormat;
+import org.apache.commons.exec.*;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,40 +11,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.commons.exec.CommandLine;
-import org.apache.commons.exec.DefaultExecutor;
-import org.apache.commons.exec.ExecuteException;
-import org.apache.commons.exec.LogOutputStream;
-import org.apache.commons.exec.PumpStreamHandler;
-
-import com.moodysalem.phantomjs.wrapper.beans.BannerInfo;
-import com.moodysalem.phantomjs.wrapper.beans.Margin;
-import com.moodysalem.phantomjs.wrapper.beans.OperatingSystem;
-import com.moodysalem.phantomjs.wrapper.beans.PaperSize;
-import com.moodysalem.phantomjs.wrapper.beans.PhantomJSExecutionResponse;
-import com.moodysalem.phantomjs.wrapper.beans.PhantomJSOptions;
-import com.moodysalem.phantomjs.wrapper.beans.RenderOptions;
-import com.moodysalem.phantomjs.wrapper.beans.ViewportDimensions;
-import com.moodysalem.phantomjs.wrapper.enums.RenderFormat;
+import static com.moodysalem.phantomjs.wrapper.CommandLineArgument.wrapCommandLineArgumentName;
 
 public class PhantomJS {
+    private final static Logger logger = Logger.getLogger(PhantomJS.class.getName());
 
-    protected final static Logger logger = Logger.getLogger(PhantomJS.class.getName());
-
-    // we use this for generating file names that do not conflict
-    private static final AtomicLong RENDER_NUMBER = new AtomicLong(0);
-
-    private static synchronized String getNewTransactionNumber() {
-
-        if (RENDER_NUMBER.longValue() == Long.MAX_VALUE) {
-            RENDER_NUMBER.set(0);
-        }
-
-        return RENDER_NUMBER.incrementAndGet() + "-" + System.currentTimeMillis();
+    private static synchronized String getRenderId() {
+        return UUID.randomUUID().toString();
     }
 
     /**
@@ -52,10 +33,13 @@ public class PhantomJS {
      * @throws IOException     if anything goes wrong executing the program
      * @throws RenderException if the render script fails for any reason
      */
-    public static InputStream render(InputStream html, RenderOptions options) throws IOException, RenderException {
-        return render(options.getOptions(), html, options.getPaperSize(), options.getDimensions(),
-                options.getMargin(), options.getHeaderInfo(), options.getFooterInfo(), options.getRenderFormat(),
-                options.getJsWait(), options.getJsInterval());
+    public static InputStream render(final InputStream html, final RenderOptions options) throws IOException, RenderException {
+        return render(
+            options.getOptions(), html,
+            options.getPaperSize(), options.getDimensions(),
+            options.getMargin(), options.getHeaderInfo(), options.getFooterInfo(), options.getRenderFormat(),
+            options.getJsWait(), options.getJsInterval()
+        );
     }
 
     /**
@@ -75,13 +59,15 @@ public class PhantomJS {
      * @throws IOException     if any file operations fail
      * @throws RenderException if the render script fails for any reason
      */
-    public static InputStream render(PhantomJSOptions options, InputStream html, PaperSize paperSize, ViewportDimensions dimensions,
-                                     Margin margin, BannerInfo headerInfo, BannerInfo footerInfo,
-                                     RenderFormat renderFormat, Long jsWait, Long jsInterval) throws IOException, RenderException {
-
+    public static InputStream render(
+        final PhantomJSOptions options, final InputStream html,
+        final PaperSize paperSize, final ViewportDimensions dimensions,
+        final Margin margin, final BannerInfo headerInfo, final BannerInfo footerInfo,
+        final RenderFormat renderFormat, final Long jsWait, final Long jsInterval
+    ) throws IOException, RenderException {
         if (html == null || renderFormat == null || paperSize == null || dimensions == null || margin == null ||
-                headerInfo == null || footerInfo == null || jsWait == null || jsInterval == null) {
-            throw new IllegalArgumentException("All parameters are required");
+            headerInfo == null || footerInfo == null || jsWait == null || jsInterval == null) {
+            throw new NullPointerException("All parameters are required");
         }
 
         if (jsWait < 0 || jsInterval < 0 || (jsWait > 0 && jsInterval > jsWait) || (jsInterval == 0 && jsWait > 0)) {
@@ -89,45 +75,46 @@ public class PhantomJS {
         }
 
         // The render script
-        InputStream renderScript = PhantomJS.class.getResourceAsStream(PhantomJSConstants.DEFAULT_RENDER_SCRIPT);
+        final InputStream renderScript = PhantomJS.class.getResourceAsStream(PhantomJSConstants.DEFAULT_RENDER_SCRIPT);
 
         // create the parent directories
         Files.createDirectories(PhantomJSConstants.TEMP_SOURCE_DIR);
         Files.createDirectories(PhantomJSConstants.TEMP_RENDER_DIR);
 
-        final String renderNumber = getNewTransactionNumber();
+        final String renderId = getRenderId();
 
         // create a source file for the source html input stream
-        Path sourcePath = PhantomJSConstants.TEMP_SOURCE_DIR.resolve(PhantomJSConstants.SOURCE_PREFIX + renderNumber);
+        final Path sourcePath = PhantomJSConstants.TEMP_SOURCE_DIR.resolve(PhantomJSConstants.SOURCE_PREFIX + renderId);
         Files.copy(html, sourcePath);
 
         // create a source file for the header function
-        Path headerFunctionPath = PhantomJSConstants.TEMP_SOURCE_DIR.resolve(PhantomJSConstants.HEADER_PREFIX + renderNumber);
+        final Path headerFunctionPath = PhantomJSConstants.TEMP_SOURCE_DIR.resolve(PhantomJSConstants.HEADER_PREFIX + renderId);
         Files.copy(new ByteArrayInputStream(headerInfo.getGeneratorFunction().getBytes()), headerFunctionPath);
 
         // create a source file for the footer function
-        Path footerFunctionPath = PhantomJSConstants.TEMP_SOURCE_DIR.resolve(PhantomJSConstants.FOOTER_PREFIX + renderNumber);
+        final Path footerFunctionPath = PhantomJSConstants.TEMP_SOURCE_DIR.resolve(PhantomJSConstants.FOOTER_PREFIX + renderId);
         Files.copy(new ByteArrayInputStream(footerInfo.getGeneratorFunction().getBytes()), footerFunctionPath);
 
         // the output file
-        Path renderPath = PhantomJSConstants.TEMP_RENDER_DIR.resolve(String.format(PhantomJSConstants.TARGET_PREFIX + "%s.%s", renderNumber, renderFormat.name().toLowerCase()));
+        final Path renderPath = PhantomJSConstants.TEMP_RENDER_DIR.resolve(String.format(PhantomJSConstants.TARGET_PREFIX + "%s.%s", renderId, renderFormat.name().toLowerCase()));
 
-        PhantomJSExecutionResponse phantomJSExecutionResponse = exec(renderScript,
-                options,
-                new CommandLineArgument(paperSize.getWidth()), new CommandLineArgument(paperSize.getHeight()),
-                new CommandLineArgument(dimensions.getWidth()), new CommandLineArgument(dimensions.getHeight()),
-                new CommandLineArgument(margin.getTop()), new CommandLineArgument(margin.getRight()),
-                new CommandLineArgument(margin.getBottom()), new CommandLineArgument(margin.getLeft()),
-                new CommandLineArgument(headerInfo.getHeight()), new CommandLineArgument(CommandLineArgument.wrapCommandLineArgumentName(PhantomJSConstants.HEADERFUNCTION_FILE), PhantomJSConstants.HEADERFUNCTION_FILE, headerFunctionPath.toFile()),
-                new CommandLineArgument(footerInfo.getHeight()), new CommandLineArgument(CommandLineArgument.wrapCommandLineArgumentName(PhantomJSConstants.FOOTERFUNCTION_FILE), PhantomJSConstants.FOOTERFUNCTION_FILE, footerFunctionPath.toFile()),
-                new CommandLineArgument(OperatingSystem.get().name()),
-                new CommandLineArgument(CommandLineArgument.wrapCommandLineArgumentName(PhantomJSConstants.SOURCEPATH_TEMPLATENAME), PhantomJSConstants.SOURCEPATH_TEMPLATENAME, sourcePath.toFile()),
-                new CommandLineArgument(CommandLineArgument.wrapCommandLineArgumentName(PhantomJSConstants.RENDERPATH_TEMPLATENAME), PhantomJSConstants.RENDERPATH_TEMPLATENAME, renderPath.toFile()),
-                new CommandLineArgument(CommandLineArgument.wrapCommandLineArgumentName(PhantomJSConstants.JSWAIT_TEMPLATENAME), PhantomJSConstants.JSWAIT_TEMPLATENAME, jsWait),
-                new CommandLineArgument(CommandLineArgument.wrapCommandLineArgumentName(PhantomJSConstants.JSINTERVAL_TEMPLATENAME), PhantomJSConstants.JSINTERVAL_TEMPLATENAME, jsInterval)
+        final PhantomJSExecutionResponse phantomJSExecutionResponse = exec(
+            renderScript,
+            options,
+            new CommandLineArgument(paperSize.getWidth()), new CommandLineArgument(paperSize.getHeight()),
+            new CommandLineArgument(dimensions.getWidth()), new CommandLineArgument(dimensions.getHeight()),
+            new CommandLineArgument(margin.getTop()), new CommandLineArgument(margin.getRight()),
+            new CommandLineArgument(margin.getBottom()), new CommandLineArgument(margin.getLeft()),
+            new CommandLineArgument(headerInfo.getHeight()), new CommandLineArgument(wrapCommandLineArgumentName(PhantomJSConstants.HEADERFUNCTION_FILE), PhantomJSConstants.HEADERFUNCTION_FILE, headerFunctionPath.toFile()),
+            new CommandLineArgument(footerInfo.getHeight()), new CommandLineArgument(wrapCommandLineArgumentName(PhantomJSConstants.FOOTERFUNCTION_FILE), PhantomJSConstants.FOOTERFUNCTION_FILE, footerFunctionPath.toFile()),
+            new CommandLineArgument(OperatingSystem.get().name()),
+            new CommandLineArgument(wrapCommandLineArgumentName(PhantomJSConstants.SOURCEPATH_TEMPLATENAME), PhantomJSConstants.SOURCEPATH_TEMPLATENAME, sourcePath.toFile()),
+            new CommandLineArgument(wrapCommandLineArgumentName(PhantomJSConstants.RENDERPATH_TEMPLATENAME), PhantomJSConstants.RENDERPATH_TEMPLATENAME, renderPath.toFile()),
+            new CommandLineArgument(wrapCommandLineArgumentName(PhantomJSConstants.JSWAIT_TEMPLATENAME), PhantomJSConstants.JSWAIT_TEMPLATENAME, jsWait),
+            new CommandLineArgument(wrapCommandLineArgumentName(PhantomJSConstants.JSINTERVAL_TEMPLATENAME), PhantomJSConstants.JSINTERVAL_TEMPLATENAME, jsInterval)
         );
 
-        int renderExitCode = phantomJSExecutionResponse.getExitCode();
+        final int renderExitCode = phantomJSExecutionResponse.getExitCode();
 
         Files.deleteIfExists(sourcePath);
         Files.deleteIfExists(headerFunctionPath);
@@ -137,7 +124,8 @@ public class PhantomJS {
             return new DeleteOnCloseFileInputStream(renderPath.toFile());
         }
 
-        String error = "Render script failed for an unknown reason.";
+        final String error;
+
         switch (renderExitCode) {
             case 1:
                 error = "Failed to read source HTML file from input stream";
@@ -156,6 +144,9 @@ public class PhantomJS {
                 break;
             case 6:
                 error = "JS execution did not finish within the wait time";
+                break;
+            default:
+                error = "Render script failed for an unknown reason.";
                 break;
         }
 
@@ -177,12 +168,8 @@ public class PhantomJS {
      * @throws IOException if cmd execution fails
      */
     public static PhantomJSExecutionResponse exec(InputStream script, PhantomJSOptions options, CommandLineArgument... arguments) throws IOException {
-        if (PhantomJSSetup.PHANTOM_JS_BINARY == null) {
-            throw new IllegalStateException("PhantomJS binary not found");
-        }
-
-        if (!PhantomJSSetup.PHANTOM_JS_BINARY.canExecute()) {
-            throw new IllegalStateException("Unable to execute PhantomJS binaries, binary not executable");
+        if (!PhantomJSSetup.isInitialized()) {
+            throw new IllegalStateException("Unable to find and execute PhantomJS binaries");
         }
 
         if (script == null) {
@@ -190,8 +177,8 @@ public class PhantomJS {
         }
 
         // the path where the script will be copied to
-        final String renderNumber = getNewTransactionNumber();
-        final Path scriptPath = PhantomJSConstants.TEMP_SCRIPT_DIR.resolve(PhantomJSConstants.SCRIPT_PREFIX + renderNumber);
+        final String renderId = getRenderId();
+        final Path scriptPath = PhantomJSConstants.TEMP_SCRIPT_DIR.resolve(PhantomJSConstants.SCRIPT_PREFIX + renderId);
 
         // create the parent directory
         Files.createDirectories(PhantomJSConstants.TEMP_SCRIPT_DIR);
@@ -200,8 +187,8 @@ public class PhantomJS {
         Files.copy(script, scriptPath);
 
         // start building the phantomjs binary call
-        CommandLine cmd = new CommandLine(PhantomJSSetup.PHANTOM_JS_BINARY);
-        Map<String, Object> args = new HashMap<>();
+        final CommandLine cmd = new CommandLine(PhantomJSSetup.getPhantomJsBinary());
+        final Map<String, Object> args = new HashMap<>();
         cmd.setSubstitutionMap(args);
 
         // add options to the phantomjs call
@@ -215,8 +202,10 @@ public class PhantomJS {
 
         // then any additional arguments
         if (arguments != null) {
-            for (CommandLineArgument arg : arguments) {
-                arg.apply(cmd, args);
+            for (final CommandLineArgument arg : arguments) {
+                if (arg != null) {
+                    arg.apply(cmd, args);
+                }
             }
         }
 

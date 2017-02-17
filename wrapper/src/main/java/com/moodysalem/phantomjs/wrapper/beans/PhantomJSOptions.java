@@ -1,11 +1,10 @@
 package com.moodysalem.phantomjs.wrapper.beans;
 
+import com.moodysalem.phantomjs.wrapper.CommandLineArgument;
 import org.apache.commons.exec.CommandLine;
 
-import com.moodysalem.phantomjs.wrapper.CommandLineArgument;
-
 import java.io.File;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -16,7 +15,8 @@ import java.util.stream.Collectors;
  * See <a href="http://phantomjs.org/api/command-line.html">here</a>
  */
 public class PhantomJSOptions {
-    public static PhantomJSOptions DEFAULT = new PhantomJSOptions(false, false, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+    public static PhantomJSOptions DEFAULT =
+        new PhantomJSOptions(false, false, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 
     public enum YesNo {
         yes, no
@@ -30,6 +30,7 @@ public class PhantomJSOptions {
     private final boolean version;
     private final File cookiesFile;
     private final Boolean diskCache;
+    private final String diskCachePath;
     private final Boolean ignoreSslErrors;
     private final Boolean loadImages;
     private final File localStoragePath;
@@ -55,11 +56,12 @@ public class PhantomJSOptions {
     private final String webdriverSeleniumGridHub;
 
     // Private constructor
-    private PhantomJSOptions(boolean help, boolean version, File cookiesFile, Boolean diskCache, Boolean ignoreSslErrors, Boolean loadImages, File localStoragePath, Long localStorageQuota, Boolean localToRemoteUrlAccess, Long maxDiskCacheSize, String outputEncoding, Short remoteDebuggerPort, YesNo remoteDebuggerAutorun, String proxy, String proxyType, String proxyAuth, String scriptEncoding, SSLProtocol sslProtocol, String sslCertificatesPath, Boolean webSecurity, Boolean webdriver, String webdriverSeleniumGridHub) {
+    private PhantomJSOptions(boolean help, boolean version, File cookiesFile, Boolean diskCache, String diskCachePath, Boolean ignoreSslErrors, Boolean loadImages, File localStoragePath, Long localStorageQuota, Boolean localToRemoteUrlAccess, Long maxDiskCacheSize, String outputEncoding, Short remoteDebuggerPort, YesNo remoteDebuggerAutorun, String proxy, String proxyType, String proxyAuth, String scriptEncoding, SSLProtocol sslProtocol, String sslCertificatesPath, Boolean webSecurity, Boolean webdriver, String webdriverSeleniumGridHub) {
         this.help = help;
         this.version = version;
         this.cookiesFile = cookiesFile;
         this.diskCache = diskCache;
+        this.diskCachePath = diskCachePath;
         this.ignoreSslErrors = ignoreSslErrors;
         this.loadImages = loadImages;
         this.localStoragePath = localStoragePath;
@@ -94,6 +96,10 @@ public class PhantomJSOptions {
 
     public Boolean getDiskCache() {
         return diskCache;
+    }
+
+    public String getDiskCachePath() {
+        return diskCachePath;
     }
 
     public Boolean getIgnoreSslErrors() {
@@ -169,99 +175,111 @@ public class PhantomJSOptions {
     }
 
     public PhantomJSOptions withHelp(boolean help) {
-        return new PhantomJSOptions(help, version, cookiesFile, diskCache, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
+        return new PhantomJSOptions(help, version, cookiesFile, diskCache, diskCachePath, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
     }
 
     public PhantomJSOptions withVersion(boolean version) {
-        return new PhantomJSOptions(help, version, cookiesFile, diskCache, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
+        return new PhantomJSOptions(help, version, cookiesFile, diskCache, diskCachePath, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
     }
 
     public PhantomJSOptions withCookiesFile(File cookiesFile) {
-        return new PhantomJSOptions(help, version, cookiesFile, diskCache, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
+        return new PhantomJSOptions(help, version, cookiesFile, diskCache, diskCachePath, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
     }
 
     public PhantomJSOptions withDiskCache(Boolean diskCache) {
-        return new PhantomJSOptions(help, version, cookiesFile, diskCache, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
+        return new PhantomJSOptions(help, version, cookiesFile, diskCache, diskCachePath, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
     }
 
+    public PhantomJSOptions withDiskCachePath(String diskCachePath) {
+        return new PhantomJSOptions(help, version, cookiesFile, diskCache, diskCachePath, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
+    }
+
+
     public PhantomJSOptions withIgnoreSslErrors(Boolean ignoreSslErrors) {
-        return new PhantomJSOptions(help, version, cookiesFile, diskCache, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
+        return new PhantomJSOptions(help, version, cookiesFile, diskCache, diskCachePath, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
     }
 
     public PhantomJSOptions withLoadImages(Boolean loadImages) {
-        return new PhantomJSOptions(help, version, cookiesFile, diskCache, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
+        return new PhantomJSOptions(help, version, cookiesFile, diskCache, diskCachePath, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
     }
 
     public PhantomJSOptions withLocalStoragePath(File localStoragePath) {
-        return new PhantomJSOptions(help, version, cookiesFile, diskCache, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
+        return new PhantomJSOptions(help, version, cookiesFile, diskCache, diskCachePath, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
     }
 
     public PhantomJSOptions withLocalStorageQuota(Long localStorageQuota) {
-        return new PhantomJSOptions(help, version, cookiesFile, diskCache, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
+        return new PhantomJSOptions(help, version, cookiesFile, diskCache, diskCachePath, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
     }
 
     public PhantomJSOptions withLocalToRemoteUrlAccess(Boolean localToRemoteUrlAccess) {
-        return new PhantomJSOptions(help, version, cookiesFile, diskCache, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
+        return new PhantomJSOptions(help, version, cookiesFile, diskCache, diskCachePath, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
     }
 
     public PhantomJSOptions withMaxDiskCacheSize(Long maxDiskCacheSize) {
-        return new PhantomJSOptions(help, version, cookiesFile, diskCache, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
+        return new PhantomJSOptions(help, version, cookiesFile, diskCache, diskCachePath, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
     }
 
     public PhantomJSOptions withOutputEncoding(String outputEncoding) {
-        return new PhantomJSOptions(help, version, cookiesFile, diskCache, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
+        return new PhantomJSOptions(help, version, cookiesFile, diskCache, diskCachePath, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
     }
 
     public PhantomJSOptions withRemoteDebuggerPort(Short remoteDebuggerPort) {
-        return new PhantomJSOptions(help, version, cookiesFile, diskCache, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
+        return new PhantomJSOptions(help, version, cookiesFile, diskCache, diskCachePath, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
     }
 
     public PhantomJSOptions withRemoteDebuggerAutorun(YesNo remoteDebuggerAutorun) {
-        return new PhantomJSOptions(help, version, cookiesFile, diskCache, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
+        return new PhantomJSOptions(help, version, cookiesFile, diskCache, diskCachePath, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
     }
 
     public PhantomJSOptions withProxy(String proxy) {
-        return new PhantomJSOptions(help, version, cookiesFile, diskCache, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
+        return new PhantomJSOptions(help, version, cookiesFile, diskCache, diskCachePath, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
     }
 
     public PhantomJSOptions withProxyType(String proxyType) {
-        return new PhantomJSOptions(help, version, cookiesFile, diskCache, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
+        return new PhantomJSOptions(help, version, cookiesFile, diskCache, diskCachePath, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
     }
 
     public PhantomJSOptions withProxyAuth(String proxyAuth) {
-        return new PhantomJSOptions(help, version, cookiesFile, diskCache, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
+        return new PhantomJSOptions(help, version, cookiesFile, diskCache, diskCachePath, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
     }
 
     public PhantomJSOptions withScriptEncoding(String scriptEncoding) {
-        return new PhantomJSOptions(help, version, cookiesFile, diskCache, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
+        return new PhantomJSOptions(help, version, cookiesFile, diskCache, diskCachePath, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
     }
 
     public PhantomJSOptions withSslProtocol(SSLProtocol sslProtocol) {
-        return new PhantomJSOptions(help, version, cookiesFile, diskCache, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
+        return new PhantomJSOptions(help, version, cookiesFile, diskCache, diskCachePath, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
     }
 
     public PhantomJSOptions withSslCertificatesPath(String sslCertificatesPath) {
-        return new PhantomJSOptions(help, version, cookiesFile, diskCache, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
+        return new PhantomJSOptions(help, version, cookiesFile, diskCache, diskCachePath, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
     }
 
     public PhantomJSOptions withWebSecurity(Boolean webSecurity) {
-        return new PhantomJSOptions(help, version, cookiesFile, diskCache, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
+        return new PhantomJSOptions(help, version, cookiesFile, diskCache, diskCachePath, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
     }
 
     public PhantomJSOptions withWebdriver(Boolean webdriver) {
-        return new PhantomJSOptions(help, version, cookiesFile, diskCache, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
+        return new PhantomJSOptions(help, version, cookiesFile, diskCache, diskCachePath, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
     }
 
     public PhantomJSOptions withWebdriverSeleniumGridHub(String webdriverSeleniumGridHub) {
-        return new PhantomJSOptions(help, version, cookiesFile, diskCache, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
+        return new PhantomJSOptions(help, version, cookiesFile, diskCache, diskCachePath, ignoreSslErrors, loadImages, localStoragePath, localStorageQuota, localToRemoteUrlAccess, maxDiskCacheSize, outputEncoding, remoteDebuggerPort, remoteDebuggerAutorun, proxy, proxyType, proxyAuth, scriptEncoding, sslProtocol, sslCertificatesPath, webSecurity, webdriver, webdriverSeleniumGridHub);
     }
 
-    public void apply(CommandLine cmd, Map<String, Object> args) {
-        List<CommandLineArgument> arguments = new ArrayList<>();
+    /**
+     * For a command line execution, add the appropriate arguments
+     *
+     * @param cmd  command line execution to modify
+     * @param args argument map
+     */
+    public void apply(final CommandLine cmd, final Map<String, Object> args) {
+        final List<CommandLineArgument> arguments = new LinkedList<>();
 
         if (isHelp()) {
             arguments.add(new CommandLineArgument("--help"));
         }
+
         if (isVersion()) {
             arguments.add(new CommandLineArgument("--version"));
         }
@@ -272,6 +290,10 @@ public class PhantomJSOptions {
 
         if (getDiskCache() != null) {
             arguments.add(new CommandLineArgument("--disk-cache=${disk-cache}", "disk-cache", getDiskCache()));
+        }
+
+        if (getDiskCachePath() != null) {
+            arguments.add(new CommandLineArgument("--disk-cache-path=${disk-cache-path}", "disk-cache-path", getDiskCachePath()));
         }
 
         if (getIgnoreSslErrors() != null) {
@@ -350,14 +372,14 @@ public class PhantomJSOptions {
             }
         }
 
-        for (CommandLineArgument cla : arguments) {
+        for (final CommandLineArgument cla : arguments) {
             cla.apply(cmd, args);
         }
     }
 
     @Override
     public String toString() {
-        List<String> args = new ArrayList<>();
+        final List<String> args = new LinkedList<>();
 
         if (isHelp()) {
             args.add("--help");
@@ -434,7 +456,7 @@ public class PhantomJSOptions {
             }
         }
 
-        return args.size() > 0 ? args.stream().collect(Collectors.joining(" ")) : "";
+        return !args.isEmpty() ? args.stream().collect(Collectors.joining(" ")) : "";
     }
 
 }

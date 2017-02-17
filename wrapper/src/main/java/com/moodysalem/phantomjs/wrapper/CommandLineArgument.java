@@ -27,7 +27,7 @@ public class CommandLineArgument {
     }
     
     public static String wrapCommandLineArgumentName(String templateName){
-    	return templateName = "${" + templateName + "}";
+    	return String.format("${%s}", templateName);
     }
 
     public CommandLineArgument(String template, Map<String, Object> keyVals) {
