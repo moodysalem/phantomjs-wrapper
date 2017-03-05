@@ -4,7 +4,7 @@
 
   <groupId>com.moodysalem</groupId>
   <artifactId>phantomjs-wrapper-parent</artifactId>
-  <version>3.1.0</version>
+  <version>3.1.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>
@@ -35,7 +35,7 @@
     <url>https://github.com/moodysalem/jaxrs-lib</url>
     <connection>scm:git:https://github.com/moodysalem/java-phantomjs-wrapper.git</connection>
     <developerConnection>scm:git:https://github.com/moodysalem/java-phantomjs-wrapper.git</developerConnection>
-    <tag>phantomjs-wrapper-parent-3.1.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <developers>

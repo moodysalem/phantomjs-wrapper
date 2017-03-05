@@ -5,7 +5,7 @@
   <parent>
     <artifactId>phantomjs-wrapper-parent</artifactId>
     <groupId>com.moodysalem</groupId>
-    <version>3.1.0</version>
+    <version>3.1.1-SNAPSHOT</version>
   </parent>
 
   <name>PhantomJS Wrapper</name>
