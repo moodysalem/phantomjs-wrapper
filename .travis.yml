@@ -1,10 +1,11 @@
 language: java
 install: mvn clean test -Dgpg.skip
-os:
-  - linux
-  - osx
-jdk:
-  - oraclejdk8
+matrix:
+  include:
+    - os: linux
+      jdk: oraclejdk8
+    - os: osx
+      osx_image: xcode8
 #after_success:
 #  - echo "<settings><servers><server><id>ossrh</id><username>\${env.OSSRH_USER}</username><password>\${env.OSSRH_PASS}</password></server></servers></settings>" > ~/settings.xml
 #  - mvn deploy --settings ~/settings.xml
