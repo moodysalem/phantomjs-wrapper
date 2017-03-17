@@ -1,8 +1,6 @@
 package com.moodysalem.phantomjs.wrapper;
 
-import com.moodysalem.phantomjs.wrapper.beans.*;
-import com.moodysalem.phantomjs.wrapper.enums.RenderFormat;
-import org.apache.commons.exec.*;
+import static com.moodysalem.phantomjs.wrapper.CommandLineArgument.wrapCommandLineArgumentName;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -12,61 +10,88 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import static com.moodysalem.phantomjs.wrapper.CommandLineArgument.wrapCommandLineArgumentName;
+import org.apache.commons.exec.CommandLine;
+import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.ExecuteException;
+import org.apache.commons.exec.LogOutputStream;
+import org.apache.commons.exec.PumpStreamHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.moodysalem.phantomjs.wrapper.beans.BannerInfo;
+import com.moodysalem.phantomjs.wrapper.beans.Margin;
+import com.moodysalem.phantomjs.wrapper.beans.OperatingSystem;
+import com.moodysalem.phantomjs.wrapper.beans.PaperSize;
+import com.moodysalem.phantomjs.wrapper.beans.PhantomJSExecutionResponse;
+import com.moodysalem.phantomjs.wrapper.beans.PhantomJSOptions;
+import com.moodysalem.phantomjs.wrapper.beans.RenderOptions;
+import com.moodysalem.phantomjs.wrapper.beans.ViewportDimensions;
+import com.moodysalem.phantomjs.wrapper.enums.RenderFormat;
 
 public class PhantomJS {
-    private final static Logger logger = Logger.getLogger(PhantomJS.class.getName());
+
+    private final static Logger logger = LoggerFactory.getLogger(PhantomJS.class);
+
 
     private static synchronized String getRenderId() {
         return UUID.randomUUID().toString();
     }
 
-    /**
-     * Another way to call PhantomJS#render using the RenderOptions to specify all the common options
-     *
-     * @param html    to render
-     * @param options for rendering
-     * @return same as PhantomJS#render
-     * @throws IOException     if anything goes wrong executing the program
-     * @throws RenderException if the render script fails for any reason
-     */
-    public static InputStream render(final InputStream html, final RenderOptions options) throws IOException, RenderException {
-        return render(
-            options.getOptions(), html,
-            options.getPaperSize(), options.getDimensions(),
-            options.getMargin(), options.getHeaderInfo(), options.getFooterInfo(), options.getRenderFormat(),
-            options.getJsWait(), options.getJsInterval()
-        );
-    }
 
     /**
-     * Render the html in the input stream with the following properties using a script included with the wrapper
+     * Another way to call PhantomJS#render using the RenderOptions to specify
+     * all the common options
      *
-     * @param options      any phantomjs options to pass to the script
-     * @param html         to render
-     * @param paperSize    size of the paper (for printed output formats)
-     * @param dimensions   dimensions of the viewport
-     * @param margin       of the paper
-     * @param headerInfo   how the header is generated
-     * @param footerInfo   how the footer is generated
-     * @param renderFormat the format to render
-     * @param jsWait       the maximum amount of time to wait for JS to finish execution in milliseconds
-     * @param jsInterval   the interval
-     * @return a stream of the rendered output
-     * @throws IOException     if any file operations fail
-     * @throws RenderException if the render script fails for any reason
+     * @param html
+     *            to render
+     * @param options
+     *            for rendering
+     * @return same as PhantomJS#render
+     * @throws IOException
+     *             if anything goes wrong executing the program
+     * @throws RenderException
+     *             if the render script fails for any reason
      */
-    public static InputStream render(
-        final PhantomJSOptions options, final InputStream html,
-        final PaperSize paperSize, final ViewportDimensions dimensions,
-        final Margin margin, final BannerInfo headerInfo, final BannerInfo footerInfo,
-        final RenderFormat renderFormat, final Long jsWait, final Long jsInterval
-    ) throws IOException, RenderException {
-        if (html == null || renderFormat == null || paperSize == null || dimensions == null || margin == null ||
-            headerInfo == null || footerInfo == null || jsWait == null || jsInterval == null) {
+    public static InputStream render(final InputStream html, final RenderOptions options) throws IOException, RenderException {
+        return render(options.getOptions(), html, options.getPaperSize(), options.getDimensions(), options.getMargin(), options.getHeaderInfo(), options.getFooterInfo(), options.getRenderFormat(), options.getJsWait(), options.getJsInterval());
+    }
+
+
+    /**
+     * Render the html in the input stream with the following properties using a
+     * script included with the wrapper
+     *
+     * @param options
+     *            any phantomjs options to pass to the script
+     * @param html
+     *            to render
+     * @param paperSize
+     *            size of the paper (for printed output formats)
+     * @param dimensions
+     *            dimensions of the viewport
+     * @param margin
+     *            of the paper
+     * @param headerInfo
+     *            how the header is generated
+     * @param footerInfo
+     *            how the footer is generated
+     * @param renderFormat
+     *            the format to render
+     * @param jsWait
+     *            the maximum amount of time to wait for JS to finish execution
+     *            in milliseconds
+     * @param jsInterval
+     *            the interval
+     * @return a stream of the rendered output
+     * @throws IOException
+     *             if any file operations fail
+     * @throws RenderException
+     *             if the render script fails for any reason
+     */
+    public static InputStream render(final PhantomJSOptions options, final InputStream html, final PaperSize paperSize, final ViewportDimensions dimensions, final Margin margin, final BannerInfo headerInfo, final BannerInfo footerInfo,
+            final RenderFormat renderFormat, final Long jsWait, final Long jsInterval) throws IOException, RenderException {
+        if (html == null || renderFormat == null || paperSize == null || dimensions == null || margin == null || headerInfo == null || footerInfo == null || jsWait == null || jsInterval == null) {
             throw new NullPointerException("All parameters are required");
         }
 
@@ -98,21 +123,14 @@ public class PhantomJS {
         // the output file
         final Path renderPath = PhantomJSConstants.TEMP_RENDER_DIR.resolve(String.format(PhantomJSConstants.TARGET_PREFIX + "%s.%s", renderId, renderFormat.name().toLowerCase()));
 
-        final PhantomJSExecutionResponse phantomJSExecutionResponse = exec(
-            renderScript,
-            options,
-            new CommandLineArgument(paperSize.getWidth()), new CommandLineArgument(paperSize.getHeight()),
-            new CommandLineArgument(dimensions.getWidth()), new CommandLineArgument(dimensions.getHeight()),
-            new CommandLineArgument(margin.getTop()), new CommandLineArgument(margin.getRight()),
-            new CommandLineArgument(margin.getBottom()), new CommandLineArgument(margin.getLeft()),
-            new CommandLineArgument(headerInfo.getHeight()), new CommandLineArgument(wrapCommandLineArgumentName(PhantomJSConstants.HEADERFUNCTION_FILE), PhantomJSConstants.HEADERFUNCTION_FILE, headerFunctionPath.toFile()),
-            new CommandLineArgument(footerInfo.getHeight()), new CommandLineArgument(wrapCommandLineArgumentName(PhantomJSConstants.FOOTERFUNCTION_FILE), PhantomJSConstants.FOOTERFUNCTION_FILE, footerFunctionPath.toFile()),
-            new CommandLineArgument(OperatingSystem.get().name()),
-            new CommandLineArgument(wrapCommandLineArgumentName(PhantomJSConstants.SOURCEPATH_TEMPLATENAME), PhantomJSConstants.SOURCEPATH_TEMPLATENAME, sourcePath.toFile()),
-            new CommandLineArgument(wrapCommandLineArgumentName(PhantomJSConstants.RENDERPATH_TEMPLATENAME), PhantomJSConstants.RENDERPATH_TEMPLATENAME, renderPath.toFile()),
-            new CommandLineArgument(wrapCommandLineArgumentName(PhantomJSConstants.JSWAIT_TEMPLATENAME), PhantomJSConstants.JSWAIT_TEMPLATENAME, jsWait),
-            new CommandLineArgument(wrapCommandLineArgumentName(PhantomJSConstants.JSINTERVAL_TEMPLATENAME), PhantomJSConstants.JSINTERVAL_TEMPLATENAME, jsInterval)
-        );
+        final PhantomJSExecutionResponse phantomJSExecutionResponse = exec(renderScript, options, new CommandLineArgument(paperSize.getWidth()), new CommandLineArgument(paperSize.getHeight()), new CommandLineArgument(dimensions.getWidth()),
+                new CommandLineArgument(dimensions.getHeight()), new CommandLineArgument(margin.getTop()), new CommandLineArgument(margin.getRight()), new CommandLineArgument(margin.getBottom()), new CommandLineArgument(margin.getLeft()),
+                new CommandLineArgument(headerInfo.getHeight()), new CommandLineArgument(wrapCommandLineArgumentName(PhantomJSConstants.HEADERFUNCTION_FILE), PhantomJSConstants.HEADERFUNCTION_FILE, headerFunctionPath.toFile()),
+                new CommandLineArgument(footerInfo.getHeight()), new CommandLineArgument(wrapCommandLineArgumentName(PhantomJSConstants.FOOTERFUNCTION_FILE), PhantomJSConstants.FOOTERFUNCTION_FILE, footerFunctionPath.toFile()),
+                new CommandLineArgument(OperatingSystem.get().name()), new CommandLineArgument(wrapCommandLineArgumentName(PhantomJSConstants.SOURCEPATH_TEMPLATENAME), PhantomJSConstants.SOURCEPATH_TEMPLATENAME, sourcePath.toFile()),
+                new CommandLineArgument(wrapCommandLineArgumentName(PhantomJSConstants.RENDERPATH_TEMPLATENAME), PhantomJSConstants.RENDERPATH_TEMPLATENAME, renderPath.toFile()),
+                new CommandLineArgument(wrapCommandLineArgumentName(PhantomJSConstants.JSWAIT_TEMPLATENAME), PhantomJSConstants.JSWAIT_TEMPLATENAME, jsWait),
+                new CommandLineArgument(wrapCommandLineArgumentName(PhantomJSConstants.JSINTERVAL_TEMPLATENAME), PhantomJSConstants.JSINTERVAL_TEMPLATENAME, jsInterval));
 
         final int renderExitCode = phantomJSExecutionResponse.getExitCode();
 
@@ -154,20 +172,25 @@ public class PhantomJS {
     }
 
 
-    public static PhantomJSExecutionResponse exec(InputStream script, CommandLineArgument... arguments) throws IOException {
+    public static PhantomJSExecutionResponse exec(final InputStream script, final CommandLineArgument... arguments) throws IOException {
         return exec(script, null, arguments);
     }
+
 
     /**
      * Execute a script with options and a list of arguments
      *
-     * @param script    path of script to execute
-     * @param options   options to execute
-     * @param arguments list of arguments
+     * @param script
+     *            path of script to execute
+     * @param options
+     *            options to execute
+     * @param arguments
+     *            list of arguments
      * @return the exit code of the script
-     * @throws IOException if cmd execution fails
+     * @throws IOException
+     *             if cmd execution fails
      */
-    public static PhantomJSExecutionResponse exec(InputStream script, PhantomJSOptions options, CommandLineArgument... arguments) throws IOException {
+    public static PhantomJSExecutionResponse exec(final InputStream script, final PhantomJSOptions options, final CommandLineArgument... arguments) throws IOException {
         if (!PhantomJSSetup.isInitialized()) {
             throw new IllegalStateException("Unable to find and execute PhantomJS binaries");
         }
@@ -209,10 +232,10 @@ public class PhantomJS {
             }
         }
 
-        logger.log(Level.INFO, String.format("Running command: %s", cmd.toString()));
+        logger.info("Running command: [{}]", cmd);
 
-        final LoggerOutputStream stdOutLogger = new LoggerOutputStream(logger, Level.INFO);
-        final LoggerOutputStream stdErrLogger = new LoggerOutputStream(logger, Level.SEVERE);
+        final InfoLoggerOutputStream stdOutLogger = new InfoLoggerOutputStream();
+        final ErrorLoggerOutputStream stdErrLogger = new ErrorLoggerOutputStream();
 
         final DefaultExecutor de = new DefaultExecutor();
         de.setStreamHandler(new PumpStreamHandler(stdOutLogger, stdErrLogger));
@@ -220,7 +243,7 @@ public class PhantomJS {
         int code;
         try {
             code = de.execute(cmd);
-        } catch (ExecuteException exe) {
+        } catch (final ExecuteException exe) {
             code = exe.getExitValue();
         }
 
@@ -233,28 +256,44 @@ public class PhantomJS {
     }
 
     /**
-     * LoggerOutputStream private nested class override
+     * Abstract logging class.
      */
-    private static class LoggerOutputStream extends LogOutputStream {
-        private Logger logger;
-        private Level level;
-        private StringBuffer messageContents;
+    private static abstract class LoggerOutputStream extends LogOutputStream {
 
-        LoggerOutputStream(Logger logger, Level level) {
-            super();
-            this.logger = logger;
-            this.level = level;
-            this.messageContents = new StringBuffer();
+        protected final StringBuffer messageContents;
+
+
+        LoggerOutputStream() {
+            messageContents = new StringBuffer();
         }
 
-        @Override
-        protected void processLine(String s, int i) {
-            logger.log(level, String.format("PhantomJS script logged: %s", s));
-            messageContents.append(s).append(System.lineSeparator());
-        }
 
         String getMessageContents() {
             return messageContents.toString();
+        }
+    }
+
+    /**
+     * Info level logger.
+     */
+    private static class InfoLoggerOutputStream extends LoggerOutputStream {
+
+        @Override
+        protected void processLine(final String s, final int i) {
+            logger.info("PhantomJS script logged: {}", s);
+            messageContents.append(s).append(System.lineSeparator());
+        }
+    }
+
+    /**
+     * Error level logger.
+     */
+    private static class ErrorLoggerOutputStream extends LoggerOutputStream {
+
+        @Override
+        protected void processLine(final String s, final int i) {
+            logger.error("PhantomJS script logged: {}", s);
+            messageContents.append(s).append(System.lineSeparator());
         }
     }
 }
