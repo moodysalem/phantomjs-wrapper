@@ -1,7 +1,7 @@
 package com.moodysalem.phantomjs.wrapper.beans;
 
 /**
- * Browser viewport dimensions used in rendering the page
+ * Browser viewport viewportDimensions used in rendering the page
  */
 public class ViewportDimensions {
     private final int width;

@@ -1,30 +1,28 @@
 package com.moodysalem.java;
 
-import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.Assert.assertTrue;
 
+import com.moodysalem.phantomjs.wrapper.PhantomJS;
+import com.moodysalem.phantomjs.wrapper.RenderException;
+import com.moodysalem.phantomjs.wrapper.RenderOptionsException;
+import com.moodysalem.phantomjs.wrapper.beans.BannerInfo;
+import com.moodysalem.phantomjs.wrapper.beans.PhantomJSExecutionResponse;
+import com.moodysalem.phantomjs.wrapper.beans.PhantomJsOptions;
+import com.moodysalem.phantomjs.wrapper.beans.RenderOptions;
+import com.moodysalem.phantomjs.wrapper.enums.SizeUnit;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
-
 import org.apache.pdfbox.io.IOUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
-import com.moodysalem.phantomjs.wrapper.PhantomJS;
-import com.moodysalem.phantomjs.wrapper.RenderException;
-import com.moodysalem.phantomjs.wrapper.beans.BannerInfo;
-import com.moodysalem.phantomjs.wrapper.beans.PhantomJSExecutionResponse;
-import com.moodysalem.phantomjs.wrapper.beans.PhantomJSOptions;
-import com.moodysalem.phantomjs.wrapper.beans.RenderOptions;
-import com.moodysalem.phantomjs.wrapper.enums.SizeUnit;
-
 public class TestPhantomJS {
 
     private static final Logger LOG = LoggerFactory.getLogger(TestPhantomJS.class);
-
 
     @Test
     public void testRunScript() throws IOException, InterruptedException {
@@ -38,20 +36,21 @@ public class TestPhantomJS {
 
     @Test
     public void testOptions() throws IOException {
-        assertTrue(PhantomJS.exec(TestPhantomJS.class.getResourceAsStream("test-script.js"), PhantomJSOptions.DEFAULT.withHelp(true)).getExitCode() == 0);
-        assertTrue(PhantomJS.exec(TestPhantomJS.class.getResourceAsStream("test-script.js"), PhantomJSOptions.DEFAULT.withVersion(true)).getExitCode() == 0);
+        assertTrue(PhantomJS.exec(TestPhantomJS.class.getResourceAsStream("test-script.js"), PhantomJsOptions.DEFAULT.withHelp(true)).getExitCode() == 0);
+        assertTrue(PhantomJS.exec(TestPhantomJS.class.getResourceAsStream("test-script.js"), PhantomJsOptions.DEFAULT.withVersion(true)).getExitCode() == 0);
     }
 
 
     @Test(expectedExceptions = { NullPointerException.class })
-    public void testNullPointerExWithEmpty() throws IOException, RenderException {
-        PhantomJS.render(TestPhantomJS.class.getResourceAsStream("test-js-waiting.html"), RenderOptions.EMPTY);
+    public void testNullPointerExWithEmpty()
+        throws IOException, RenderException, RenderOptionsException {
+        PhantomJS.render(TestPhantomJS.class.getResourceAsStream("test-js-waiting.html"), null);
     }
 
 
     @Test
-    public void testRender() throws IOException, RenderException {
-        try (InputStream is = PhantomJS.render(TestPhantomJS.class.getResourceAsStream("test-js-waiting.html"), RenderOptions.DEFAULT)) {
+    public void testRender() throws IOException, RenderException, RenderOptionsException {
+        try (InputStream is = PhantomJS.render(TestPhantomJS.class.getResourceAsStream("test-js-waiting.html"), new RenderOptions())) {
             final PDDocument doc = PDDocument.load(is);
             doc.close();
             assertTrue(doc.getNumberOfPages() == 1);
@@ -60,8 +59,8 @@ public class TestPhantomJS {
 
 
     @Test
-    public void testWithExternalCss() throws IOException, RenderException {
-        try (InputStream is = PhantomJS.render(TestPhantomJS.class.getResourceAsStream("test-with-resources.html"), RenderOptions.DEFAULT)) {
+    public void testWithExternalCss() throws IOException, RenderException, RenderOptionsException {
+        try (InputStream is = PhantomJS.render(TestPhantomJS.class.getResourceAsStream("test-with-resources.html"), new RenderOptions())) {
             final PDDocument doc = PDDocument.load(is);
             doc.close();
             assertTrue(doc.getNumberOfPages() == 1);
@@ -70,8 +69,8 @@ public class TestPhantomJS {
 
 
     @Test
-    public void testRenderJsWait() throws IOException, RenderException {
-        try (InputStream is = PhantomJS.render(TestPhantomJS.class.getResourceAsStream("test-js-waiting.html"), RenderOptions.DEFAULT)) {
+    public void testRenderJsWait() throws IOException, RenderException, RenderOptionsException {
+        try (InputStream is = PhantomJS.render(TestPhantomJS.class.getResourceAsStream("test-js-waiting.html"), new RenderOptions())) {
             final PDDocument doc = PDDocument.load(is);
             doc.close();
             assertTrue(doc.getNumberOfPages() == 1);
@@ -80,8 +79,9 @@ public class TestPhantomJS {
 
 
     @Test(expectedExceptions = RenderException.class)
-    public void testRenderJsWaitTimeout() throws IOException, RenderException {
-        try (InputStream is = PhantomJS.render(TestPhantomJS.class.getResourceAsStream("test-js-waiting.html"), RenderOptions.DEFAULT.withJavaScriptExecutionDetails(100L, 50L))) {
+    public void testRenderJsWaitTimeout()
+        throws IOException, RenderException, RenderOptionsException {
+        try (InputStream is = PhantomJS.render(TestPhantomJS.class.getResourceAsStream("test-js-waiting.html"), new RenderOptions().jsWait(100L).jsInterval(50L))) {
             final PDDocument doc = PDDocument.load(is);
             doc.close();
             assertTrue(doc.getNumberOfPages() == 1);
@@ -90,11 +90,11 @@ public class TestPhantomJS {
 
 
     @Test
-    public void testFooterAndHeader() throws IOException, RenderException {
+    public void testFooterAndHeader() throws IOException, RenderException, RenderOptionsException {
         final BannerInfo header = new BannerInfo(1, SizeUnit.in, "function (pageNum, numPages) { return \"<h5>Header: <span style='float:right'>\" + ['zero','one','two'][pageNum] + \" / \" + ['zero','one','two'][numPages] + \"</span></h5>\"; }");
         final BannerInfo footer = new BannerInfo(1, SizeUnit.in, "function (pageNum, numPages) { return \"<h5>Footer: <span style='float:right'>\" + pageNum + \" / \" + numPages + \"</span></h5>\"; }");
 
-        try (InputStream is = PhantomJS.render(TestPhantomJS.class.getResourceAsStream("test.html"), RenderOptions.DEFAULT.withHeaderInfo(header).withFooterInfo(footer))) {
+        try (InputStream is = PhantomJS.render(TestPhantomJS.class.getResourceAsStream("test.html"), new RenderOptions().headerInfo(header).footerInfo(footer))) {
             final PDDocument doc = PDDocument.load(is);
             doc.close();
             assertTrue(doc.getNumberOfPages() == 2);
@@ -120,7 +120,6 @@ public class TestPhantomJS {
         }
     }
 
-
     /**
      * Returns a thread that renders test.html
      *
@@ -131,7 +130,8 @@ public class TestPhantomJS {
 
             @Override
             public void run() {
-                try (final InputStream pdf = PhantomJS.render(TestPhantomJS.class.getResourceAsStream("test.html"), RenderOptions.DEFAULT)) {
+                try (final InputStream pdf = PhantomJS
+                    .render(TestPhantomJS.class.getResourceAsStream("test.html"), new RenderOptions())) {
                     assert IOUtils.toByteArray(pdf).length > 0;
                     LOG.info("Thread finished rendering: {}", getName());
                 } catch (final Exception e) {
