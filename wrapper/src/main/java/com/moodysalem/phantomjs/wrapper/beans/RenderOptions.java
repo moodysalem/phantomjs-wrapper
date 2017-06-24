@@ -1,248 +1,151 @@
 package com.moodysalem.phantomjs.wrapper.beans;
 
 import com.moodysalem.phantomjs.wrapper.enums.RenderFormat;
-import java.util.Set;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 
 public class RenderOptions {
 
-    private static Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
-
-    @NotNull(message = "PhantomJsOptions may not be null.")
-    private PhantomJsOptions phantomJsOptions;
-
-    @NotNull(message = "PaperSize may not be null.")
-    private PaperSize paperSize;
-
-    @NotNull(message = "PaperSize may not be null.")
-    private ViewportDimensions viewportDimensions;
-
-    @NotNull(message = "Margin may not be null.")
-    private Margin margin;
-
-    @NotNull(message = "HeaderInfo may not be null.")
-    private BannerInfo headerInfo;
-
-    @NotNull(message = "FooterInfo may not be null.")
-    private BannerInfo footerInfo;
-
-    @NotNull(message = "RenderFormat may not be null.")
-    private RenderFormat renderFormat;
-
-    @NotNull(message = "jsExecutionTimeout may not be null.")
-    @Min(value = 0, message = "jsExecutionTimeout must be greater than or equal to 0")
-    private Long jsExecutionTimeout;
-
-    @NotNull(message = "jsInterval may not be null")
-    @Min(value = 0, message = "jsInterval must be greater than or equal to 0")
-    private Long jsInterval;
+  private PhantomJsOptions phantomJsOptions = PhantomJsOptions.DEFAULT.withDiskCache(true);
+  private PaperSize paperSize = PaperSize.Letter;
+  private ViewportDimensions viewportDimensions = ViewportDimensions.VIEW_1280_1024;
+  private Margin margin = Margin.ZERO;
+  private BannerInfo headerInfo = BannerInfo.EMPTY;
+  private BannerInfo footerInfo = BannerInfo.EMPTY;
+  private RenderFormat renderFormat = RenderFormat.PDF;
+  private Long jsExecutionTimeout = 1000L;
+  private Long jsInterval = 100L;
 
 
-    public RenderOptions() {
-        margin = Margin.ZERO;
-        viewportDimensions = ViewportDimensions.VIEW_1280_1024;
-        paperSize = PaperSize.Letter;
-        renderFormat = RenderFormat.PDF;
-        footerInfo = BannerInfo.EMPTY;
-        headerInfo = BannerInfo.EMPTY;
-        jsExecutionTimeout = 1000L;
-        jsInterval = 100L;
-        phantomJsOptions = PhantomJsOptions.DEFAULT.withDiskCache(true);
-    }
+  /**
+   * Default constructor applies default options. Use the fluent API to customize your options.
+   */
+  public RenderOptions() {
+  }
 
-    public PhantomJsOptions getPhantomJsOptions() {
-        return phantomJsOptions;
-    }
+  public RenderOptions(final Margin margin, final ViewportDimensions viewportDimensions,
+      final PaperSize paperSize, final RenderFormat renderFormat, final BannerInfo footerInfo,
+      final BannerInfo headerInfo, final Long jsExecutionTimeout, final Long jsInterval,
+      final PhantomJsOptions phantomJsOptions) {
+    this.margin = margin;
+    this.viewportDimensions = viewportDimensions;
+    this.paperSize = paperSize;
+    this.renderFormat = renderFormat;
+    this.footerInfo = footerInfo;
+    this.headerInfo = headerInfo;
+    this.jsExecutionTimeout = jsExecutionTimeout;
+    this.jsInterval = jsInterval;
+    this.phantomJsOptions = phantomJsOptions;
+  }
 
-    /**
-     * @return Size of the paper (for printed output formats).
-     */
-    public PaperSize getPaperSize() {
-        return paperSize;
-    }
+  public PhantomJsOptions getPhantomJsOptions() {
+    return phantomJsOptions;
+  }
 
-    public ViewportDimensions getViewportDimensions() {
-        return viewportDimensions;
-    }
+  /**
+   * @return Size of the paper (for printed output formats).
+   */
+  public PaperSize getPaperSize() {
+    return paperSize;
+  }
 
-    /**
-     * @return Margin of the paper.
-     */
-    public Margin getMargin() {
-        return margin;
-    }
+  public ViewportDimensions getViewportDimensions() {
+    return viewportDimensions;
+  }
 
-    /**
-     * @return Information on how to generate the header.
-     */
-    public BannerInfo getHeaderInfo() {
-        return headerInfo;
-    }
+  /**
+   * @return Margin of the paper.
+   */
+  public Margin getMargin() {
+    return margin;
+  }
 
-    /**
-     * @return Information on how to generate the footer.
-     */
-    public BannerInfo getFooterInfo() {
-        return footerInfo;
-    }
+  /**
+   * @return Information on how to generate the header.
+   */
+  public BannerInfo getHeaderInfo() {
+    return headerInfo;
+  }
 
-    public RenderFormat getRenderFormat() {
-        return renderFormat;
-    }
+  /**
+   * @return Information on how to generate the footer.
+   */
+  public BannerInfo getFooterInfo() {
+    return footerInfo;
+  }
 
-    /**
-     * @return The maximum amount of time to wait for JS to finish execution in milliseconds.
-     */
-    public Long getJsExecutionTimeout() {
-        return jsExecutionTimeout;
-    }
+  public RenderFormat getRenderFormat() {
+    return renderFormat;
+  }
 
-    public Long getJsInterval() {
-        return jsInterval;
-    }
+  /**
+   * @return The maximum amount of time to wait for JS to finish execution in milliseconds.
+   */
+  public Long getJsExecutionTimeout() {
+    return jsExecutionTimeout;
+  }
 
-    public void setPhantomJsOptions(PhantomJsOptions phantomJsOptions) {
-        this.phantomJsOptions = phantomJsOptions;
-    }
+  public Long getJsInterval() {
+    return jsInterval;
+  }
 
-    /**
-     * @param paperSize Size of the paper (for printed output formats).
-     */
-    public void setPaperSize(PaperSize paperSize) {
-        this.paperSize = paperSize;
-    }
 
-    public void setViewportDimensions(ViewportDimensions viewportDimensions) {
-        this.viewportDimensions = viewportDimensions;
-    }
+  /**
+   * @param paperSize Size of the paper (for printed output formats).
+   */
+  public RenderOptions paperSize(final PaperSize paperSize) {
+    return new RenderOptions(margin, viewportDimensions, paperSize, renderFormat, footerInfo,
+        headerInfo, jsExecutionTimeout, jsInterval, phantomJsOptions);
+  }
 
-    /**
-     * @param margin Margin of the paper.
-     */
-    public void setMargin(Margin margin) {
-        this.margin = margin;
-    }
+  public RenderOptions viewportDimensions(final ViewportDimensions viewportDimensions) {
+    return new RenderOptions(margin, viewportDimensions, paperSize, renderFormat, footerInfo,
+        headerInfo, jsExecutionTimeout, jsInterval, phantomJsOptions);
+  }
 
-    /**
-     * @param headerInfo Information on how to generate the header.
-     */
-    public void setHeaderInfo(BannerInfo headerInfo) {
-        this.headerInfo = headerInfo;
-    }
+  /**
+   * @param margin Margin of the paper.
+   */
+  public RenderOptions margin(final Margin margin) {
+    return new RenderOptions(margin, viewportDimensions, paperSize, renderFormat, footerInfo,
+        headerInfo, jsExecutionTimeout, jsInterval, phantomJsOptions);
+  }
 
-    /**
-     * @param footerInfo Information on how to generate the footer.
-     */
-    public void setFooterInfo(BannerInfo footerInfo) {
-        this.footerInfo = footerInfo;
-    }
+  /**
+   * @param headerInfo Information on how to generate the header.
+   */
+  public RenderOptions headerInfo(final BannerInfo headerInfo) {
+    return new RenderOptions(margin, viewportDimensions, paperSize, renderFormat, footerInfo,
+        headerInfo, jsExecutionTimeout, jsInterval, phantomJsOptions);
+  }
 
-    public void setRenderFormat(RenderFormat renderFormat) {
-        this.renderFormat = renderFormat;
-    }
+  /**
+   * @param footerInfo Information on how to generate the footer.
+   */
+  public RenderOptions footerInfo(final BannerInfo footerInfo) {
+    return new RenderOptions(margin, viewportDimensions, paperSize, renderFormat, footerInfo,
+        headerInfo, jsExecutionTimeout, jsInterval, phantomJsOptions);
+  }
 
-    /**
-     * @param jsExecutionTimeout The maximum amount of time to wait for JS to finish execution in milliseconds.
-     */
-    public void setJsExecutionTimeout(Long jsExecutionTimeout) {
-        this.jsExecutionTimeout = jsExecutionTimeout;
-    }
+  public RenderOptions renderFormat(final RenderFormat renderFormat) {
+    return new RenderOptions(margin, viewportDimensions, paperSize, renderFormat, footerInfo,
+        headerInfo, jsExecutionTimeout, jsInterval, phantomJsOptions);
+  }
 
-    public void setJsInterval(Long jsInterval) {
-        this.jsInterval = jsInterval;
-    }
+  /**
+   * @param jsExecutionTimeout The maximum amount of time to wait for JS to finish execution in
+   * milliseconds.
+   */
+  public RenderOptions jsExecutionTimeout(final Long jsExecutionTimeout) {
+    return new RenderOptions(margin, viewportDimensions, paperSize, renderFormat, footerInfo,
+        headerInfo, this.jsExecutionTimeout, jsInterval, phantomJsOptions);
+  }
 
-    public RenderOptions phantomJSOptions(PhantomJsOptions options) {
-        this.phantomJsOptions = options;
-        return this;
-    }
+  public RenderOptions jsInterval(final Long jsInterval) {
+    return new RenderOptions(margin, viewportDimensions, paperSize, renderFormat, footerInfo,
+        headerInfo, jsExecutionTimeout, jsInterval, phantomJsOptions);
+  }
 
-    /**
-     * @param paperSize Size of the paper (for printed output formats).
-     * @return
-     */
-    public RenderOptions paperSize(PaperSize paperSize) {
-        this.paperSize = paperSize;
-        return this;
-    }
-
-    public RenderOptions viewportDimensions(ViewportDimensions viewportDimensions) {
-        this.viewportDimensions = viewportDimensions;
-        return this;
-    }
-
-    /**
-     * @param margin Margin of the paper.
-     * @return
-     */
-    public RenderOptions margin(Margin margin) {
-        this.margin = margin;
-        return this;
-    }
-
-    /**
-     * @param headerInfo Information on how to generate the header.
-     * @return
-     */
-    public RenderOptions headerInfo(BannerInfo headerInfo) {
-        this.headerInfo = headerInfo;
-        return this;
-    }
-
-    /**
-     * @param footerInfo Information on how to generate the footer.
-     * @return
-     */
-    public RenderOptions footerInfo(BannerInfo footerInfo) {
-        this.footerInfo = footerInfo;
-        return this;
-    }
-
-    public RenderOptions renderFormat(RenderFormat renderFormat) {
-        this.renderFormat = renderFormat;
-        return this;
-    }
-
-    /**
-     * @param jsWait The maximum amount of time to wait for JS to finish execution in milliseconds.
-     * @return
-     */
-    public RenderOptions jsWait(Long jsWait) {
-        this.jsExecutionTimeout = jsWait;
-        return this;
-    }
-
-    public RenderOptions jsInterval(Long jsInterval) {
-        this.jsInterval = jsInterval;
-        return this;
-    }
-
-    //TODO: evaluate if this can be done with BeanValidation as well
-    private boolean isWaitAndIntervalConstraintInvalid() {
-        return (jsExecutionTimeout > 0 && jsInterval > jsExecutionTimeout) || (jsInterval == 0 && jsExecutionTimeout
-            > 0);
-    }
-
-    public boolean isValid() {
-        if(isWaitAndIntervalConstraintInvalid()) {
-            return  false;
-        }
-
-        return validator.validate(this).isEmpty();
-    }
-
-    public Set<ConstraintViolation<RenderOptions>> getConstraintViolations() {
-        Set<ConstraintViolation<RenderOptions>> constraintViolations = validator.validate(this);
-
-        if(isWaitAndIntervalConstraintInvalid()) {
-            constraintViolations.add(ConstraintViolationImpl.forBeanValidation(null, null,null,"If jsExecutionTimeout is greater than 0, the jsInterval needs to be 0 < jsInterval < jsExecutionTimeout",null,null,null,null,null,null,null,null));
-        }
-
-        return constraintViolations;
-    }
+  public RenderOptions phantomJsOptions(final PhantomJsOptions phantomJsOptions) {
+    return new RenderOptions(margin, viewportDimensions, paperSize, renderFormat, footerInfo,
+        headerInfo, jsExecutionTimeout, jsInterval, phantomJsOptions);
+  }
 }
