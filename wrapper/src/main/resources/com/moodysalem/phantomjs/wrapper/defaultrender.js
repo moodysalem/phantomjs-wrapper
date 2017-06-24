@@ -16,7 +16,7 @@ var page = require('webpage').create(),
   operatingSystem = system.args[ 13 ],
   sourcePath = system.args[ 14 ],
   targetPath = system.args[ 15 ],
-  jsWait = +system.args[ 16 ],
+  jsExecutionTimeout = +system.args[ 16 ],
   jsInterval = +system.args[ 17 ];
 
 
@@ -125,7 +125,7 @@ var renderIfDone = function renderIfDone() {
   if (done()) {
     renderPage();
   } else {
-    if (waited > jsWait) {
+    if (waited > jsExecutionTimeout) {
       err('Timed out on JavaScript execution');
       phantom.exit(6);
     }

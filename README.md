@@ -47,44 +47,23 @@ The phantomJS script bundled with this wrapper (render.js) to support the public
 ## Public Interface
 
     /**
-     * Another way to call PhantomJS#render using the RenderOptions to specify all the common options
+     * Another way to call PhantomJS#render using the RenderOptions to specify all the common phantomJsOptions
      *
      * @param html    to render
-     * @param options for rendering
-     * @return same as PhantomJS#render
+     * @param phantomJsOptions for rendering
+     * @return a stream of the rendered output
      * @throws IOException
      * @throws RenderException
      */
-    public static InputStream render(InputStream html, RenderOptions options) throws IOException, RenderException;
+    public static InputStream render(InputStream html, RenderOptions phantomJsOptions) throws IOException, RenderException;
 
     /**
-     * Render the html in the input stream with the following properties using a script included with the wrapper
-     *
-     * @param html         to render
-     * @param paperSize    size of the paper (for printed output formats)
-     * @param dimensions   dimensions of the viewport
-     * @param margin       of the paper
-     * @param headerInfo   how the header is generated
-     * @param footerInfo   how the footer is generated
-     * @param renderFormat the format to render
-     * @param jsWait       the maximum amount of time to wait for JS to finish execution in milliseconds
-     * @param jsInterval   the interval
-     * @return a stream of the rendered output
-     * @throws IOException     if any file operations fail
-     * @throws RenderException if the render script fails for any reason
-     */
-    public static InputStream render(InputStream html, PaperSize paperSize, ViewportDimensions dimensions,
-                                     Margin margin, BannerInfo headerInfo, BannerInfo footerInfo,
-                                     RenderFormat renderFormat, Long jsWait, Long jsInterval) throws IOException, RenderException;
-
-
-    /**
-     * Execute a script with options and a list of arguments
+     * Execute a script with phantomJsOptions and a list of arguments
      *
      * @param script    path of script to execute
-     * @param options   options to execute
+     * @param phantomJsOptions   phantomJsOptions to execute
      * @param arguments list of arguments
      * @return the exit code of the script
      * @throws IOException if cmd execution fails
      */
-    public static PhantomJSExecutionResponse exec(InputStream script, PhantomJSOptions options, CommandLineArgument... arguments) throws IOException;
+    public static PhantomJSExecutionResponse exec(InputStream script, PhantomJSOptions phantomJsOptions, CommandLineArgument... arguments) throws IOException;
