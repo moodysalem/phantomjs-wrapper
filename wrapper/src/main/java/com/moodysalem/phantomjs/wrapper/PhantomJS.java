@@ -16,9 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.exec.CommandLine;
@@ -146,41 +144,40 @@ public class PhantomJS {
         .format(PhantomJSConstants.TARGET_PREFIX + "%s.%s", renderId,
             renderFormat.name().toLowerCase()));
 
-    final List<CommandLineArgument> commandLineArguments = new ArrayList<>();
-    commandLineArguments.add(new CommandLineArgument(paperSize.getWidth()));
-    commandLineArguments.add(new CommandLineArgument(paperSize.getHeight()));
-    commandLineArguments.add(new CommandLineArgument(viewportDimensions.getWidth()));
-    commandLineArguments.add(new CommandLineArgument(viewportDimensions.getHeight()));
-    commandLineArguments.add(new CommandLineArgument(margin.getTop()));
-    commandLineArguments.add(new CommandLineArgument(margin.getRight()));
-    commandLineArguments.add(new CommandLineArgument(margin.getBottom()));
-    commandLineArguments.add(new CommandLineArgument(margin.getLeft()));
-    commandLineArguments.add(new CommandLineArgument(headerInfo.getHeight()));
-    commandLineArguments.add(
+    final CommandLineArgument[] commandLineArguments = new CommandLineArgument[17];
+    commandLineArguments[0] = new CommandLineArgument(paperSize.getWidth());
+    commandLineArguments[1] = new CommandLineArgument(paperSize.getHeight());
+    commandLineArguments[2] = new CommandLineArgument(viewportDimensions.getWidth());
+    commandLineArguments[3] = new CommandLineArgument(viewportDimensions.getHeight());
+    commandLineArguments[4] = new CommandLineArgument(margin.getTop());
+    commandLineArguments[5] = new CommandLineArgument(margin.getRight());
+    commandLineArguments[6] = new CommandLineArgument(margin.getBottom());
+    commandLineArguments[7] = new CommandLineArgument(margin.getLeft());
+    commandLineArguments[8] = new CommandLineArgument(headerInfo.getHeight());
+    commandLineArguments[9] =
         new CommandLineArgument(wrapCommandLineArgumentName(PhantomJSConstants.HEADERFUNCTION_FILE),
-            PhantomJSConstants.HEADERFUNCTION_FILE, headerFunctionPath.toFile()));
-    commandLineArguments.add(new CommandLineArgument(footerInfo.getHeight()));
-    commandLineArguments.add(
+            PhantomJSConstants.HEADERFUNCTION_FILE, headerFunctionPath.toFile());
+    commandLineArguments[10] = new CommandLineArgument(footerInfo.getHeight());
+    commandLineArguments[11] =
         new CommandLineArgument(wrapCommandLineArgumentName(PhantomJSConstants.FOOTERFUNCTION_FILE),
-            PhantomJSConstants.FOOTERFUNCTION_FILE, footerFunctionPath.toFile()));
-    commandLineArguments.add(new CommandLineArgument(OperatingSystem.get().name()));
-    commandLineArguments.add(new CommandLineArgument(
+            PhantomJSConstants.FOOTERFUNCTION_FILE, footerFunctionPath.toFile());
+    commandLineArguments[12] = new CommandLineArgument(OperatingSystem.get().name());
+    commandLineArguments[13] = new CommandLineArgument(
         wrapCommandLineArgumentName(PhantomJSConstants.SOURCEPATH_TEMPLATENAME),
-        PhantomJSConstants.SOURCEPATH_TEMPLATENAME, sourcePath.toFile()));
-    commandLineArguments.add(new CommandLineArgument(
+        PhantomJSConstants.SOURCEPATH_TEMPLATENAME, sourcePath.toFile());
+    commandLineArguments[14] = new CommandLineArgument(
         wrapCommandLineArgumentName(PhantomJSConstants.RENDERPATH_TEMPLATENAME),
-        PhantomJSConstants.RENDERPATH_TEMPLATENAME, renderPath.toFile()));
-    commandLineArguments.add(
+        PhantomJSConstants.RENDERPATH_TEMPLATENAME, renderPath.toFile());
+    commandLineArguments[15] =
         new CommandLineArgument(
             wrapCommandLineArgumentName(PhantomJSConstants.JS_EXECUTION_TIMEOUT_TEMPLATENAME),
-            PhantomJSConstants.JS_EXECUTION_TIMEOUT_TEMPLATENAME, jsExecutionTimeout));
-    commandLineArguments.add(new CommandLineArgument(
+            PhantomJSConstants.JS_EXECUTION_TIMEOUT_TEMPLATENAME, jsExecutionTimeout);
+    commandLineArguments[16] = new CommandLineArgument(
         wrapCommandLineArgumentName(PhantomJSConstants.JSINTERVAL_TEMPLATENAME),
-        PhantomJSConstants.JSINTERVAL_TEMPLATENAME, jsInterval));
+        PhantomJSConstants.JSINTERVAL_TEMPLATENAME, jsInterval);
 
     final PhantomJSExecutionResponse phantomJSExecutionResponse = exec(renderScript,
-        options.getPhantomJsOptions(),
-        commandLineArguments.toArray(new CommandLineArgument[commandLineArguments.size()]));
+        options.getPhantomJsOptions(), commandLineArguments);
 
     final int renderExitCode = phantomJSExecutionResponse.getExitCode();
 
