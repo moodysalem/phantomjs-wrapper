@@ -182,7 +182,7 @@ public class PhantomJS {
     }
 
     /**
-     * Execute a script with options and a list of arguments
+     * Execute a script with environment settings, options and a list of arguments.
      *
      * @param script
      *            path of script to execute
