@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -176,12 +177,17 @@ public class PhantomJS {
         return exec(script, null, arguments);
     }
 
+    public static PhantomJSExecutionResponse exec(final InputStream script, final PhantomJSOptions options, final CommandLineArgument... arguments) throws IOException {
+        return exec(script, Collections.emptyMap(), options , arguments);
+    }
 
     /**
-     * Execute a script with options and a list of arguments
+     * Execute a script with environment settings, options and a list of arguments.
      *
      * @param script
      *            path of script to execute
+     * @param executionEnvironment
+     *            the environment to use for script execution
      * @param options
      *            options to execute
      * @param arguments
@@ -190,7 +196,7 @@ public class PhantomJS {
      * @throws IOException
      *             if cmd execution fails
      */
-    public static PhantomJSExecutionResponse exec(final InputStream script, final PhantomJSOptions options, final CommandLineArgument... arguments) throws IOException {
+    public static PhantomJSExecutionResponse exec(final InputStream script, final Map<String, String> executionEnvironment, final PhantomJSOptions options, final CommandLineArgument... arguments) throws IOException {
         if (!PhantomJSSetup.isInitialized()) {
             throw new IllegalStateException("Unable to find and execute PhantomJS binaries");
         }
@@ -242,7 +248,11 @@ public class PhantomJS {
 
         int code;
         try {
-            code = de.execute(cmd);
+            if(executionEnvironment != null && !executionEnvironment.isEmpty()) {
+                code = de.execute(cmd, executionEnvironment);
+            } else {
+                code = de.execute(cmd);
+            }
         } catch (final ExecuteException exe) {
             code = exe.getExitValue();
         }
