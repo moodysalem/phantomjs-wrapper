@@ -198,13 +198,16 @@ class PhantomJSSetup {
 
             @Override
             public void run() {
+                deleteTempDir(PhantomJSConstants.TEMP_SOURCE_DIR);
+                deleteTempDir(PhantomJSConstants.TEMP_SCRIPT_DIR);
+                deleteTempDir(PhantomJSConstants.TEMP_RENDER_DIR);
+            }
+            
+            private void deleteTempDir(Path path) {
                 try {
-                    Files.delete(PhantomJSConstants.TEMP_SOURCE_DIR);
-                    Files.delete(PhantomJSConstants.TEMP_SCRIPT_DIR);
-                    Files.delete(PhantomJSConstants.TEMP_RENDER_DIR);
-
+                    Files.deleteIfExists(path);
                 } catch (final Exception e) {
-                    LOG.warn("PhantomJSSetup was unable to clean up temporary directories under: [{}]. Caused by: ", PhantomJSConstants.TEMP_DIR, e);
+                    LOG.warn("PhantomJSSetup was unable to clean up temporary directory [{}]. Caused by: ", path, e);
                 }
             }
         };
