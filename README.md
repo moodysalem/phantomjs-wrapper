@@ -1,5 +1,5 @@
 # phantomjs-wrapper
-[![Build Status](https://travis-ci.org/moodysalem/java-phantomjs-wrapper.svg?branch=master)](https://travis-ci.org/moodysalem/java-phantomjs-wrapper) [![Maven Central](https://img.shields.io/maven-central/v/com.moodysalem/phantomjs-wrapper.svg)](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22phantomjs-wrapper%22%20g%3A%22com.moodysalem%22) [![Dependency Status](https://www.versioneye.com/java/com.moodysalem:phantomjs-wrapper/3.1.1/badge?style=flat-square)](https://www.versioneye.com/java/com.moodysalem:phantomjs-wrapper) 
+[![Build Status](https://travis-ci.org/moodysalem/java-phantomjs-wrapper.svg?branch=master)](https://travis-ci.org/moodysalem/java-phantomjs-wrapper) [![Maven Central](https://img.shields.io/maven-central/v/com.moodysalem/phantomjs-wrapper.svg)](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22phantomjs-wrapper%22%20g%3A%22com.moodysalem%22) [![Dependency Status](https://www.versioneye.com/java/com.moodysalem:phantomjs-wrapper/badge.svg?style=flat-square)](https://www.versioneye.com/java/com.moodysalem:phantomjs-wrapper) 
 
 A Java wrapper around the PhantomJS binaries with additional support for rendering HTML from an InputStream
 
